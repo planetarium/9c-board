@@ -51,9 +51,24 @@ export const RankPage: React.FC = () => {
 
     useEffect(() => loadRankingState());
 
+    const compareNumber = (x: number, y: number) => {
+        if (x > y) {
+            return -1;
+        } else if (x < y) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    const compareFn = (xs: [string, RankingInfo], ys: [string, RankingInfo]) => {
+        const exps = [Number(xs[1].exp), Number(ys[1].exp)];
+        return compareNumber(exps[0], exps[1]);
+    }
+
     const rankingRows = value === undefined
         ? (<>Loading</>)
-        : Object.entries(value?.map || []).map((xs: [string, RankingInfo]) => (<RankingRow data={xs} />));
+        : Object.entries(value.map).sort(compareFn).map((xs: [string, RankingInfo]) => (<RankingRow data={xs} />));
 
     return (
         <>
