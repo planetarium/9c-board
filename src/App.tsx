@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import { RankPage } from "./pages";
+import { RankPage, StatePage } from "./pages";
 import './App.css';
 
 const App: React.FC = () => (
@@ -8,6 +8,9 @@ const App: React.FC = () => (
     <Switch>
       <Route path="/rank">
         <RankPage />
+      </Route>
+      <Route path="/state/:address">
+        <StatePage />
       </Route>
     </Switch>
   </Router>
