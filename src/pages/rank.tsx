@@ -35,7 +35,8 @@ const RankingRow: React.FC<RankingRowProps> = (props) => (
     <div>{props.data[1].avatarName.split(' ')[0]}#{props.data[0].substring(0, 6)} - exp={props.data[1].exp}</div>
 );
 
-const HOST = "http://a4af4ffa3787011ea824802399f8ed0e-2108883843.ap-northeast-2.elb.amazonaws.com";
+// FIXME: code redundancy.
+const HOST = "https://9c-state.planetarium.dev";
 
 export const RankPage: React.FC = () => {
     const [value, setValue] = React.useState<RankingState>();
