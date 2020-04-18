@@ -1,30 +1,9 @@
 import React, { useEffect } from 'react';
+import { RankingInfo, RankingState } from '../lib/state/rank';
 import axios from "axios";
 
 interface RankingRowProps {
     data: [string, RankingInfo]
-}
-
-type Address = string
-
-interface RankingInfo {
-    exp: string;
-    updatedAt: string;
-    level: string;
-    avatarAddress: string;
-    stageClearedBlockIndex: string;
-    armorId: string;
-    avatarName: string;
-    agentAddress: string;
-}
-
-interface AddressRankingInfoMap {
-    [address: string]: RankingInfo
-}
-
-interface RankingState {
-    map: AddressRankingInfoMap
-    address: Address
 }
 
 interface RankingStateResponse {
