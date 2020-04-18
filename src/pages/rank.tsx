@@ -6,8 +6,21 @@ interface RankingRowProps {
     data: [string, RankingInfo]
 }
 
+// FIXME: wrap with styled-components
 const RankingRow: React.FC<RankingRowProps> = (props) => (
-    <div>{props.data[1].avatarName.split(' ')[0]}#{props.data[0].substring(0, 6)} - exp={props.data[1].exp}</div>
+    <div style={{
+        height: "25px",
+        lineHeight: "25px"
+    }}>
+        <a 
+            href={`/state/${props.data[1].avatarAddress}`}
+            style={{
+                textDecoration: "none",
+                color: "black"
+        }}>
+            {props.data[1].avatarName.split(' ')[0]}#{props.data[0].substring(0, 6)} - exp={props.data[1].exp}
+        </a>
+    </div>
 );
 
 export const RankPage: React.FC = () => {
@@ -45,6 +58,8 @@ export const RankPage: React.FC = () => {
     return (
         <>
             <h1>Ranking</h1>
+            <desc>If you click the name, you can see the avatar's state. <span role="img">😀</span></desc>
+            <hr/>
             {rankingRows}
         </>
     );
