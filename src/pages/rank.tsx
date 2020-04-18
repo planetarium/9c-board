@@ -1,30 +1,22 @@
 import React, { useEffect } from 'react';
 import { RankingInfo, RankingState } from '../lib/state/rank';
-import axios from "axios";
+import { getState } from '../api/state';
 
 interface RankingRowProps {
     data: [string, RankingInfo]
-}
-
-interface RankingStateResponse {
-    value: RankingState
 }
 
 const RankingRow: React.FC<RankingRowProps> = (props) => (
     <div>{props.data[1].avatarName.split(' ')[0]}#{props.data[0].substring(0, 6)} - exp={props.data[1].exp}</div>
 );
 
-// FIXME: code redundancy.
-const HOST = "https://9c-state.planetarium.dev";
-
 export const RankPage: React.FC = () => {
     const [value, setValue] = React.useState<RankingState>();
 
-    const getStateUrl = (address: string) => `${HOST}/state/${address}`;
+    const RANKING_STATE_ADDRESS = "0000000000000000000000000000000000000001";
 
     const loadRankingState = () => {
-        const RANKING_STATE_URL = getStateUrl("0000000000000000000000000000000000000001");
-        axios.get<RankingStateResponse>(RANKING_STATE_URL).then(({ data: { value } }) => {
+        getState<RankingState>(RANKING_STATE_ADDRESS).then((value) => {
             setValue(value);
         });
     }

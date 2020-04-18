@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import JsonTree from 'react-json-tree';
 import { useParams } from 'react-router-dom';
-import Axios from 'axios';
+import { getState } from '../api/state';
 
 const theme = {
     scheme: 'monokai',
@@ -28,12 +28,8 @@ export const StatePage = () => {
     const { address } = useParams();
     const [state, setState] = useState({})
 
-    // FIXME: code redundancy.
-    const HOST = "https://9c-state.planetarium.dev";
-    const getStateUrl = (address: string) => `${HOST}/state/${address}`;
     const loadState = (address: string) => {
-        const STATE_URL = getStateUrl(address);
-        Axios.get(STATE_URL).then(({ data: { value } }) => {
+        getState<any>(address).then((value) => {
             setState(value);
         });
     }
