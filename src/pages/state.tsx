@@ -41,11 +41,18 @@ export const StatePage = () => {
             return (
                 <a href={"./" + value} style={{textDecoration: 'none'}}>"{value}"</a>
             )
-        } else {
-            return (
-                <>{value}</>
-            )
+        } else if (typeof(value) === 'string' && /^[a-fA-F0-9]+$/g.test(value) && value.length % 2 === 0) {
+            const hexCodes = value.match(/.{2}/g)?.map(x => parseInt(x, 16));
+            const allAsciiCharacters = hexCodes?.every(x => 0x20 <= x && x <= 0x7f);
+            if (allAsciiCharacters) {
+                return (
+                    <span>{hexCodes?.map(x => String.fromCharCode(x))} <span style={{fontSize: "12px"}}>{value}</span></span>
+                )
+            }
         }
+        return (
+            <>{displayText}</>
+        );
     }
     return (
         <JsonTree hideRoot valueRenderer={valueRenderer} theme={theme} data={state} />
