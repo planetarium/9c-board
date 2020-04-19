@@ -1,26 +1,24 @@
 import React, { useEffect } from 'react';
 import { RankingInfo, RankingState } from '../lib/state/rank';
 import { getState } from '../api/state';
+import styled from 'styled-components';
 
 interface RankingRowProps {
     data: [string, RankingInfo]
 }
 
-// FIXME: wrap with styled-components
+const RankingRowComponent = styled.a`
+    text-decoration: none;
+    color: black;
+    height: 25px;
+    line-height: 25px;
+    display: block;
+`;
+
 const RankingRow: React.FC<RankingRowProps> = (props) => (
-    <div style={{
-        height: "25px",
-        lineHeight: "25px"
-    }}>
-        <a 
-            href={`/state/${props.data[1].avatarAddress}`}
-            style={{
-                textDecoration: "none",
-                color: "black"
-        }}>
-            {props.data[1].avatarName.split(' ')[0]}#{props.data[0].substring(0, 6)} - exp={props.data[1].exp}
-        </a>
-    </div>
+    <RankingRowComponent href={`/state/${props.data[1].avatarAddress}`}>
+        {props.data[1].avatarName.split(' ')[0]}#{props.data[0].substring(0, 6)} - exp={props.data[1].exp}
+    </RankingRowComponent>
 );
 
 export const RankPage: React.FC = () => {
