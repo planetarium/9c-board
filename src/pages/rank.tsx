@@ -4,7 +4,8 @@ import { getState } from '../api/state';
 import styled from 'styled-components';
 
 interface RankingRowProps {
-    data: [string, RankingInfo]
+    data: [string, RankingInfo];
+    rank: number;
 }
 
 const RankingRowComponent = styled.a`
@@ -17,7 +18,7 @@ const RankingRowComponent = styled.a`
 
 const RankingRow: React.FC<RankingRowProps> = (props) => (
     <RankingRowComponent href={`/state/${props.data[1].avatarAddress}`}>
-        {props.data[1].avatarName.split(' ')[0]}#{props.data[0].substring(0, 6)} - exp={props.data[1].exp}
+        {props.rank}. {props.data[1].avatarName.split(' ')[0]}#{props.data[0].substring(0, 6)} - exp={props.data[1].exp}
     </RankingRowComponent>
 );
 
@@ -51,7 +52,9 @@ export const RankPage: React.FC = () => {
 
     const rankingRows = value === undefined
         ? (<>Loading</>)
-        : Object.entries(value.map).sort(compareFn).map((xs: [string, RankingInfo]) => (<RankingRow data={xs} />));
+        : Object.entries(value.map)
+            .sort(compareFn)
+            .map((xs: [string, RankingInfo], index: number) => (<RankingRow data={xs} rank={index + 1} />));
 
     return (
         <>
