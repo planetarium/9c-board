@@ -34,7 +34,7 @@ export const StatePage = () => {
         });
     }
 
-    useEffect(() => loadState(address || ""));
+    useEffect(() => loadState(address || ""), [address]);
 
     const valueRenderer = (displayText: any, value: any) => {
         if (typeof(value) === 'string' && /^[a-fA-F0-9]{40}$/g.test(value)) {

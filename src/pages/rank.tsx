@@ -33,7 +33,7 @@ export const RankPage: React.FC = () => {
         });
     }
 
-    useEffect(() => loadRankingState());
+    useEffect(() => loadRankingState(), []);
 
     const compareNumber = (x: number, y: number) => {
         if (x > y) {
