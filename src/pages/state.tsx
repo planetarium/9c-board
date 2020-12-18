@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import JsonTree from 'react-json-tree';
+import React from 'react';
+import JsonTree from "react-json-tree";
 import { useParams } from 'react-router-dom';
-import { getState } from '../api/state';
+import { useRawStateQuery } from '../generated/graphql';
+import { decode, BencodexValue } from 'bencodex';
 
 const theme = {
     scheme: 'monokai',
@@ -24,17 +25,29 @@ const theme = {
     base0F: '#cc6633'
 };
 
-export const StatePage = () => {
-    const { address } = useParams();
-    const [state, setState] = useState({})
-
-    const loadState = (address: string) => {
-        getState<any>(address).then((value) => {
-            setState(value);
-        });
+// Copied from https://github.com/planetarium/libplanet-explorer-frontend/blob/4f5f6283d0b56d024295cb1a7090043769bd9a1c/src/subpages/transaction.tsx#L13-L28
+// FIXME: do not use any type.
+function convertToObject(value: BencodexValue | undefined): any {
+    if (value instanceof Map) {
+        return Object.fromEntries(Array.from(value).map(v => [v[0], convertToObject(v[1])]));
+    } else if (value instanceof Array) {
+        return value.map(v => convertToObject(v));
+    } else if (value instanceof Uint8Array) {
+        return "<binary> " + value.toString('hex');
+    } else if (typeof value === 'bigint') {
+        return Number(value);
+    } else {
+        return value;
     }
+}
 
-    useEffect(() => loadState(address || ""), [address]);
+export const StatePage = () => {
+    const { address } = useParams<{address: string}>();
+    const { loading, data } = useRawStateQuery({
+        variables: {
+            address,
+        }
+    })
 
     const valueRenderer = (displayText: any, value: any) => {
         if (typeof(value) === 'string' && /^[a-fA-F0-9]{40}$/g.test(value)) {
@@ -54,7 +67,7 @@ export const StatePage = () => {
             <>{displayText}</>
         );
     }
-    return (
-        <JsonTree hideRoot valueRenderer={valueRenderer} theme={theme} data={state} />
-    );
+    return loading || data === undefined
+    ? (<>Loading</>)
+    : (<JsonTree hideRoot valueRenderer={valueRenderer} theme={theme} data={convertToObject(decode(Buffer.from(data.state, "hex")))} /> );
 };

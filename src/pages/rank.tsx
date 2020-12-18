@@ -1,10 +1,9 @@
-import React, { useEffect } from 'react';
-import { RankingInfo, RankingState } from '../lib/state/rank';
-import { getState } from '../api/state';
+import React from 'react';
 import styled from 'styled-components';
+import { useRankingMapQuery, RankingRowFragment } from "../generated/graphql"
 
 interface RankingRowProps {
-    data: [string, RankingInfo];
+    data: RankingRowFragment;
     rank: number;
 }
 
@@ -17,44 +16,33 @@ const RankingRowComponent = styled.a`
 `;
 
 const RankingRow: React.FC<RankingRowProps> = (props) => (
-    <RankingRowComponent href={`/state/${props.data[1].avatarAddress}`}>
-        {props.rank}. {props.data[1].avatarName.split(' ')[0]}#{props.data[0].substring(0, 6)} - exp={props.data[1].exp}
+    <RankingRowComponent href={`/state/${props.data.avatarAddress}`}>
+        {props.rank}. {props.data.avatarName.split(' ')[0]}#{props.data.avatarAddress.substring(2, 8)} - exp={props.data.exp}
     </RankingRowComponent>
 );
 
 export const RankPage: React.FC = () => {
-    const [value, setValue] = React.useState<RankingState>();
-
-    const RANKING_STATE_ADDRESS = "0000000000000000000000000000000000000001";
-
-    const loadRankingState = () => {
-        getState<RankingState>(RANKING_STATE_ADDRESS).then((value) => {
-            setValue(value);
-        });
-    }
-
-    useEffect(() => loadRankingState(), []);
+    const { loading, data } = useRankingMapQuery({
+        variables: {
+            index: 0,
+        }
+    });
 
     const compareNumber = (x: number, y: number) => {
         if (x > y) {
             return -1;
         } else if (x < y) {
             return 1;
-        } else {
-            return 0;
         }
+
+        return 0;
     }
 
-    const compareFn = (xs: [string, RankingInfo], ys: [string, RankingInfo]) => {
-        const exps = [Number(xs[1].exp), Number(ys[1].exp)];
-        return compareNumber(exps[0], exps[1]);
-    }
-
-    const rankingRows = value === undefined
+    const compareFn = (x: RankingRowFragment, y: RankingRowFragment) => compareNumber(x.exp, y.exp);
+    const rankingRows = loading || data === undefined
         ? (<>Loading</>)
-        : Object.entries(value.map)
-            .sort(compareFn)
-            .map((xs: [string, RankingInfo], index: number) => (<RankingRow data={xs} rank={index + 1} />));
+        : data.stateQuery.rankingMap?.rankingInfos.slice().sort(compareFn)
+            .map((x, index) => (<RankingRow data={x} rank={index + 1} />));
 
     return (
         <>
