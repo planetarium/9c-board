@@ -22,7 +22,7 @@ const RankingRow: React.FC<RankingRowProps> = (props) => (
 );
 
 export const RankPage: React.FC = () => {
-    const { loading, data } = useRankingMapQuery({
+    const { loading, data, refetch, error } = useRankingMapQuery({
         variables: {
             index: 0,
         }
@@ -43,6 +43,13 @@ export const RankPage: React.FC = () => {
         ? (<>Loading</>)
         : data.stateQuery.rankingMap?.rankingInfos.slice().sort(compareFn)
             .map((x, index) => (<RankingRow data={x} rank={index + 1} />));
+
+    if (error) {
+        console.error(error);
+        return (
+            <button onClick={_ => refetch()}>Retry button</button>
+        )
+    }
 
     return (
         <>

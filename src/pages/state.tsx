@@ -43,7 +43,7 @@ function convertToObject(value: BencodexValue | undefined): any {
 
 export const StatePage = () => {
     const { address } = useParams<{address: string}>();
-    const { loading, data } = useRawStateQuery({
+    const { loading, data, refetch, error } = useRawStateQuery({
         variables: {
             address,
         }
@@ -67,6 +67,14 @@ export const StatePage = () => {
             <>{displayText}</>
         );
     }
+
+    if (error) {
+        console.error(error);
+        return (
+            <button onClick={_ => refetch()}>Retry button</button>
+        )
+    }
+
     return loading || data === undefined
     ? (<>Loading</>)
     : (<JsonTree hideRoot valueRenderer={valueRenderer} theme={theme} data={convertToObject(decode(Buffer.from(data.state, "hex")))} /> );

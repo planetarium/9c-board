@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import { RankPage, StatePage } from "./pages";
 import './App.css';
 import styled from "styled-components";
 
-import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client';
+import { ApolloProvider, ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
 
 const TopMenuBar = styled.div`
   height: 30px;
@@ -22,27 +22,52 @@ const TopMenuLink = styled(Link)`
   color: black;
 `;
 
+const UrlHostInput = styled.input`
+  width: 20%;
+  float: right;
+`;
+
+const GRAPHQL_ENDPOINT_KEY = "graphql-endpoint";
+const DEFAULT_GRAPHQL_ENDPOINT = "/graphql";
+
 const client = new ApolloClient({
-  uri: "http://localhost:43114/graphql",
-  cache: new InMemoryCache(),
+  link: new HttpLink({
+    uri: localStorage.getItem(GRAPHQL_ENDPOINT_KEY) ?? DEFAULT_GRAPHQL_ENDPOINT,
+  }),
+  cache: new InMemoryCache()
 });
 
-const App: React.FC = () => (
-  <Router>
-    <ApolloProvider client={client}>
-      <TopMenuBar>
-        <TopMenuLink to="/rank">Rank</TopMenuLink>
-      </TopMenuBar>
-      <Switch>
-        <Route path="/rank">
-          <RankPage />
-        </Route>
-        <Route path="/state/:address">
-          <StatePage />
-        </Route>
-      </Switch>
-    </ApolloProvider>
-  </Router>
-)
+const App: React.FC = () => {
+  const [graphQLEndpoint, setGraphQLEndpoint] = useState<string>(localStorage.getItem(GRAPHQL_ENDPOINT_KEY) ?? "/graphql");
+  const onUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const changedInputValue = event.target.value;
+    if (changedInputValue !== null) {
+      localStorage.setItem(GRAPHQL_ENDPOINT_KEY, changedInputValue);
+      client.setLink(new HttpLink({
+        uri: changedInputValue
+      }))
+      setGraphQLEndpoint(changedInputValue);
+    }
+  };
+
+  return (
+    <Router>
+      <ApolloProvider client={client}>
+        <TopMenuBar>
+          <UrlHostInput value={graphQLEndpoint} onChange={onUrlChange} />
+          <TopMenuLink to="/rank">Rank</TopMenuLink>
+        </TopMenuBar>
+        <Switch>
+          <Route path="/rank">
+            <RankPage />
+          </Route>
+          <Route path="/state/:address">
+            <StatePage />
+          </Route>
+        </Switch>
+      </ApolloProvider>
+    </Router>
+  )
+}
 
 export default App;
