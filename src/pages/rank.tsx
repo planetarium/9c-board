@@ -54,7 +54,7 @@ export const RankPage: React.FC = () => {
     return (
         <>
             <h1>Ranking</h1>
-            <desc>If you click the name, you can see the avatar's state. <span role="img">😀</span></desc>
+            <desc>If you click the name, you can see the avatar's state. <span role="img" aria-label="Smiling face">😀</span></desc>
             <hr/>
             {rankingRows}
         </>
