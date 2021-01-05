@@ -1,0 +1,19 @@
+query RankingMap($index: Int!) {
+    stateQuery {
+        rankingMap(index: $index) {
+            rankingInfos {
+                ...RankingRow
+            }
+        }
+    }
+}
+
+fragment RankingRow on RankingInfoType {
+    avatarName
+    avatarAddress
+    exp
+}
+
+query RawState($address: Address!) {
+    state(address: $address)
+}
