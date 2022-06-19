@@ -36,3 +36,6 @@ yarn-error.log*
 
 # generated graphql
 generated
+
+# secret envionment variables
+.env
