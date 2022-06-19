@@ -1,8 +1,6 @@
 import type { NextPage, GetServerSideProps } from 'next'
 import { RankRow, RankRowProps } from '../components/rank/RankRow'
-import { getSdk } from "../generated/graphql-request"
-
-import { GraphQLClient } from "graphql-request"
+import SDK from "../sdk"
 
 interface RankProps {
   rows: RankRowProps[]
@@ -17,19 +15,12 @@ const Rank: NextPage<RankProps> = ({ rows }) => {
 }
 
 export const getServerSideProps: GetServerSideProps<RankProps> = async (context) => {
-  if (process.env.GRAPHQL_ENDPOINT === undefined || process.env.HASURA_ADMIN_SECRET === undefined) {
-    throw new Error("All required environment variables are not set.");
-  }
-
   const page = context.query.page || "0";
   if (typeof(page) !== "string") {
     throw new Error("Page parameter is not a string.");
   }
 
-  const client = new GraphQLClient(process.env.GRAPHQL_ENDPOINT);
-  client.setHeader("x-hasura-admin-secret", process.env.HASURA_ADMIN_SECRET);
-  const headlessGraphQLSDK = getSdk(client);
-  const res = await headlessGraphQLSDK.RankingMap({
+  const res = await SDK.RankingMap({
     index: parseInt(page),
   });
   let rows = res.stateQuery.rankingMap?.rankingInfos.map((info, index) => {
