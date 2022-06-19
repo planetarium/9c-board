@@ -14,6 +14,16 @@ fragment RankingRow on RankingInfoType {
     exp
 }
 
+query Avatar($address: Address!) {
+    stateQuery {
+        avatar(avatarAddress: $address) {
+            name
+            actionPoint
+            level
+        }
+    }
+}
+
 query RawState($address: Address!) {
     state(address: $address)
 }
