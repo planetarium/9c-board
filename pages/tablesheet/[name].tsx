@@ -18,6 +18,7 @@ const TableSheetPage: NextPage<TableSheetPageProps> = ({tableSheet}) => {
 
     return (
         <div>
+            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => navigator.clipboard.writeText(tableSheet)}>Copy sheet to clipboard</button>
             <table>
                 <thead className="border-b">
                     <tr key="header">
