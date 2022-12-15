@@ -12,7 +12,7 @@ const TableSheetPage: NextPage<TableSheetPageProps> = ({tableSheet}) => {
         )
     }
 
-    const lines = tableSheet.split("\r\n");
+    const lines = tableSheet.split("\n");
     const headerLine = lines[0];
     const contentLines = lines.slice(1).filter(x => x !== "");
 
