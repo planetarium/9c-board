@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next"
-import SDK from "../../sdk";
+import SDK, { internalGraphQLSDK } from "../../../sdk";
 
 interface TableSheetPageProps {
     tableSheet: string | null,
@@ -39,17 +39,35 @@ const TableSheetPage: NextPage<TableSheetPageProps> = ({tableSheet}) => {
 
 export const getServerSideProps: GetServerSideProps<TableSheetPageProps> = async (context) => {
     const name = context.query.name;
+    const network = context.query.network;
 
     if (typeof name !== "string") {
         throw new Error("Table sheet name parameter is not a string.");
     }
 
+    if (typeof network !== "string") {
+        throw new Error("Network name parameter is not a string.");
+    }
+
+    const networkToSDK = (network: string) => {
+        if (network === "9c-main") {
+            return SDK;
+        }
+
+        if (network === "9c-internal") {
+            return internalGraphQLSDK;
+        }
+
+        throw new TypeError();
+    }
+
+    const sdk = networkToSDK(network);
     const address = require("node:crypto").createHmac("sha1", Buffer.from(name, "utf8"))
         .update(Buffer.from("0000000000000000000000000000000000000003", "hex"))
         .digest("hex");
 
     try {
-        const state = Buffer.from((await SDK.RawState({address})).state, "hex");
+        const state = Buffer.from((await sdk.RawState({address})).state, "hex");
         const tableSheet = require('bencodex').decode(state);
 
         if (typeof tableSheet !== "string") {
