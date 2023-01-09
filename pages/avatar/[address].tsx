@@ -40,9 +40,12 @@ const AvatarPage: NextPage<AvatarPageProps> = ({avatar}) => {
     }
 
     const aggregatedItems = new Map<number, number>();
+    const hourglassItems: number[] = [];
     for (const { item, count } of avatar.inventory.items) {
         aggregatedItems.set(item.id, (aggregatedItems.get(item.id) || 0) + count);
     }
+
+    hourglassItems.sort((a, b) => a - b);
 
     return (
         <>
@@ -61,6 +64,12 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (co
         throw new Error("Address parameter is not a string.");
     }
 
+    const blockIndexString = context.query.blockIndex;
+    const blockIndex = blockIndexString === undefined ? -1 : Number(blockIndexString);
+    const hash = (await SDK.GetBlockHashByBlockIndex({
+        index: (blockIndex as unknown) as string,  // Break assumption ID must be string.
+    })).chainQuery.blockQuery?.block?.hash;
+
     const legacyInventoryKey = "inventory" as const;
     const inventoryAddress = require("node:crypto").createHmac("sha1", Buffer.from(legacyInventoryKey, "utf8"))
         .update(Buffer.from(address.replace("0x", ""), "hex"))
@@ -68,7 +77,7 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (co
 
     const avatar = await (await SDK.Avatar({address})).stateQuery.avatar;
 
-    const rawInventoryState = Buffer.from((await SDK.RawState({ address: inventoryAddress })).state, "hex");
+    const rawInventoryState = Buffer.from((await SDK.RawState({ address: inventoryAddress, hash })).state, "hex");
     const inventory: BencodexDict = require("bencodex").decode(rawInventoryState);
 
     if (avatar === null || avatar === undefined) {

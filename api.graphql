@@ -24,6 +24,16 @@ query Avatar($address: Address!) {
     }
 }
 
-query RawState($address: Address!) {
-    state(address: $address)
+query RawState($address: Address!, $hash: ByteString = null) {
+    state(address: $address, hash: $hash)
+}
+
+query GetBlockHashByBlockIndex($index: ID!) {
+    chainQuery {
+        blockQuery {
+            block(index: $index) {
+                hash
+            }
+        }
+    }
 }
