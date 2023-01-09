@@ -40,12 +40,9 @@ const AvatarPage: NextPage<AvatarPageProps> = ({avatar}) => {
     }
 
     const aggregatedItems = new Map<number, number>();
-    const hourglassItems: number[] = [];
     for (const { item, count } of avatar.inventory.items) {
         aggregatedItems.set(item.id, (aggregatedItems.get(item.id) || 0) + count);
     }
-
-    hourglassItems.sort((a, b) => a - b);
 
     return (
         <>
