@@ -80,9 +80,9 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (co
     }
 
     function itemMapToObject(item: BencodexDict): Item {
-        const rawItemId = item.get("itemId");
+        const rawItemId = item.get("itemId") || item.get("item_id");
         const rawBuffSkills = item.get("buffSkills");
-        const rawRequiredBlockIndex = item.get("requiredBlockIndex") as number | undefined;
+        const rawRequiredBlockIndex = (item.get("requiredBlockIndex") || item.get("rbi")) as number | undefined;
         const rawSkills = item.get("skills");
         const rawStats = item.get("stats");
         const rawStatsMap = item.get("statsMap");
