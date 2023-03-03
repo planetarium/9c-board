@@ -48,9 +48,14 @@ const AvatarPage: NextPage<AvatarPageProps> = ({avatar}) => {
         <>
             <p>Lv.{avatar.level} {avatar.name} ({avatar.actionPoint}/120)</p>
             <h1 className="text-3xl font-extrabold">Inventory</h1>
-            <ul className="space-y-1 list-disc list-inside">
-                {Array.from(aggregatedItems.entries()).map(([id, count]) => <li key={id}>{id}: {count}</li>)}
-            </ul>
+            <div className="flex flex-row flex-wrap space-y-3">
+                {Array.from(aggregatedItems.entries())
+                    .map(([id, count]) => 
+                        <div className="inline-flex w-28 h-20 border-solid border-2 border-gray-600 content-center" key={id}>
+                            {/* FIXME: MAKE THIS URL CONFIGURABLE BY USER */}
+                            <img className="w-16 h-16" src={`https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/${id}.png`} /> <span className="font-bold">{count}</span>
+                        </div>)}
+            </div>
         </>
     )
 }
