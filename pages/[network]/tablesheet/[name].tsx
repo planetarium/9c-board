@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next"
-import SDK, { internalGraphQLSDK } from "../../../sdk";
+import SDK, { internalGraphQLSDK, previewnetGraphQLSDK } from "../../../sdk";
 
 interface TableSheetPageProps {
     tableSheet: string | null,
@@ -56,6 +56,10 @@ export const getServerSideProps: GetServerSideProps<TableSheetPageProps> = async
 
         if (network === "9c-internal") {
             return internalGraphQLSDK;
+        }
+
+        if (network === "9c-previewnet") {
+            return previewnetGraphQLSDK;
         }
 
         throw new TypeError();
