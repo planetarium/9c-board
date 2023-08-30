@@ -80,7 +80,7 @@ export const getServerSideProps: GetServerSideProps<TableSheetPageProps> = async
         throw new Error("Block index parameter is not a string.");
     }
 
-    let blockHash = await getHash(hash, index);
+    const blockHash = await getHash(hash, index);
 
     const networkToSDK = (network: string) => {
         if (network === "9c-main") {
