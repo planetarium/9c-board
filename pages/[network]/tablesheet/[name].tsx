@@ -40,6 +40,7 @@ const TableSheetPage: NextPage<TableSheetPageProps> = ({tableSheet}) => {
 export const getServerSideProps: GetServerSideProps<TableSheetPageProps> = async (context) => {
     const name = context.query.name;
     const network = context.query.network;
+    const hash = context.query.hash;
 
     if (typeof name !== "string") {
         throw new Error("Table sheet name parameter is not a string.");
@@ -71,7 +72,7 @@ export const getServerSideProps: GetServerSideProps<TableSheetPageProps> = async
         .digest("hex");
 
     try {
-        const state = Buffer.from((await sdk.RawState({address})).state, "hex");
+        const state = Buffer.from((await sdk.RawState({address, hash})).state, "hex");
         const tableSheet = require('bencodex').decode(state);
 
         if (typeof tableSheet !== "string") {
