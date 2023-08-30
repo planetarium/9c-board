@@ -37,9 +37,32 @@ const TableSheetPage: NextPage<TableSheetPageProps> = ({tableSheet}) => {
     )
 }
 
+const getHash = async (hash: string | undefined, index: string | undefined) => {
+    if (hash !== undefined && index !== undefined) {
+        throw new Error("Both hash and index parameters are defined.");
+    }
+
+    if (hash !== undefined) {
+        return hash;
+    }
+
+    if (index === undefined) {
+        return undefined;
+    }
+
+    const indexHash = (await SDK.GetBlockHashByBlockIndex({index})).chainQuery.blockQuery?.block?.hash;
+    if (indexHash === undefined) {
+        throw new Error("Block hash is not found.");
+    }
+
+    return indexHash;
+};
+
 export const getServerSideProps: GetServerSideProps<TableSheetPageProps> = async (context) => {
     const name = context.query.name;
     const network = context.query.network;
+    const hash = context.query.hash;
+    const index = context.query.index;
 
     if (typeof name !== "string") {
         throw new Error("Table sheet name parameter is not a string.");
@@ -48,6 +71,16 @@ export const getServerSideProps: GetServerSideProps<TableSheetPageProps> = async
     if (typeof network !== "string") {
         throw new Error("Network name parameter is not a string.");
     }
+
+    if (hash !== undefined && typeof hash !== "string") {
+        throw new Error("Block hash parameter is not a string.");
+    }
+
+    if (index !== undefined && typeof index !== "string") {
+        throw new Error("Block index parameter is not a string.");
+    }
+
+    const blockHash = await getHash(hash, index);
 
     const networkToSDK = (network: string) => {
         if (network === "9c-main") {
@@ -71,7 +104,7 @@ export const getServerSideProps: GetServerSideProps<TableSheetPageProps> = async
         .digest("hex");
 
     try {
-        const state = Buffer.from((await sdk.RawState({address})).state, "hex");
+        const state = Buffer.from((await sdk.RawState({address, hash: blockHash})).state, "hex");
         const tableSheet = require('bencodex').decode(state);
 
         if (typeof tableSheet !== "string") {
