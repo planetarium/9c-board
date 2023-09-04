@@ -1,5 +1,6 @@
 import type { NextPage, GetServerSideProps } from "next"
-import SDK, { internalGraphQLSDK, previewnetGraphQLSDK } from "../../../sdk";
+import { networkToSDK } from "../network-util";
+import { Sdk } from "../../../generated/graphql-request";
 
 interface TableSheetPageProps {
     tableSheet: string | null,
@@ -37,7 +38,7 @@ const TableSheetPage: NextPage<TableSheetPageProps> = ({tableSheet}) => {
     )
 }
 
-const getHash = async (hash: string | undefined, index: string | undefined) => {
+const getHash = async (hash: string | undefined, index: string | undefined, sdk: Sdk) => {
     if (hash !== undefined && index !== undefined) {
         throw new Error("Both hash and index parameters are defined.");
     }
@@ -50,7 +51,7 @@ const getHash = async (hash: string | undefined, index: string | undefined) => {
         return undefined;
     }
 
-    const indexHash = (await SDK.GetBlockHashByBlockIndex({index})).chainQuery.blockQuery?.block?.hash;
+    const indexHash = (await sdk.GetBlockHashByBlockIndex({index})).chainQuery.blockQuery?.block?.hash;
     if (indexHash === undefined) {
         throw new Error("Block hash is not found.");
     }
@@ -60,16 +61,11 @@ const getHash = async (hash: string | undefined, index: string | undefined) => {
 
 export const getServerSideProps: GetServerSideProps<TableSheetPageProps> = async (context) => {
     const name = context.query.name;
-    const network = context.query.network;
     const hash = context.query.hash;
     const index = context.query.index;
 
     if (typeof name !== "string") {
         throw new Error("Table sheet name parameter is not a string.");
-    }
-
-    if (typeof network !== "string") {
-        throw new Error("Network name parameter is not a string.");
     }
 
     if (hash !== undefined && typeof hash !== "string") {
@@ -80,25 +76,10 @@ export const getServerSideProps: GetServerSideProps<TableSheetPageProps> = async
         throw new Error("Block index parameter is not a string.");
     }
 
-    const blockHash = await getHash(hash, index);
+    const sdk = networkToSDK(context);
 
-    const networkToSDK = (network: string) => {
-        if (network === "9c-main") {
-            return SDK;
-        }
+    const blockHash = await getHash(hash, index, sdk);
 
-        if (network === "9c-internal") {
-            return internalGraphQLSDK;
-        }
-
-        if (network === "9c-previewnet") {
-            return previewnetGraphQLSDK;
-        }
-
-        throw new TypeError();
-    }
-
-    const sdk = networkToSDK(network);
     const address = require("node:crypto").createHmac("sha1", Buffer.from(name, "utf8"))
         .update(Buffer.from("0000000000000000000000000000000000000003", "hex"))
         .digest("hex");
