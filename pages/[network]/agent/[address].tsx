@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next"
-import SDK from "../../sdk"
+import { networkToSDK } from "../network-util";
 
 interface Agent {
     gold: string;
@@ -43,13 +43,15 @@ export const getServerSideProps: GetServerSideProps<AgentPageProps> = async (con
         throw new Error("Address parameter is not a string.");
     }
 
+    const sdk = networkToSDK(context);
+
     const blockIndexString = context.query.blockIndex;
     const blockIndex = blockIndexString === undefined ? -1 : Number(blockIndexString);
-    const hash = (await SDK.GetBlockHashByBlockIndex({
+    const hash = (await sdk.GetBlockHashByBlockIndex({
         index: (blockIndex as unknown) as string,  // Break assumption ID must be string.
     })).chainQuery.blockQuery?.block?.hash;
 
-    const agent = await (await SDK.Agent({address})).stateQuery.agent;
+    const agent = await (await sdk.Agent({address})).stateQuery.agent;
     if (agent === null || agent === undefined) {
         return {
             props: {

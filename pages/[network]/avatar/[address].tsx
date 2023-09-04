@@ -1,6 +1,6 @@
 import type { NextPage, GetServerSideProps } from "next"
 import type { BencodexDict, BencodexValue } from "bencodex";
-import SDK from "../../sdk"
+import { networkToSDK } from "../network-util";
 
 interface Avatar {
     name: string,
@@ -65,10 +65,12 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (co
     if (typeof(address) !== "string") {
         throw new Error("Address parameter is not a string.");
     }
+    
+    const sdk = networkToSDK(context);
 
     const blockIndexString = context.query.blockIndex;
     const blockIndex = blockIndexString === undefined ? -1 : Number(blockIndexString);
-    const hash = (await SDK.GetBlockHashByBlockIndex({
+    const hash = (await sdk.GetBlockHashByBlockIndex({
         index: (blockIndex as unknown) as string,  // Break assumption ID must be string.
     })).chainQuery.blockQuery?.block?.hash;
 
@@ -77,9 +79,9 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (co
         .update(Buffer.from(address.replace("0x", ""), "hex"))
         .digest("hex");
 
-    const avatar = await (await SDK.Avatar({address})).stateQuery.avatar;
+    const avatar = await (await sdk.Avatar({address})).stateQuery.avatar;
 
-    const rawInventoryState = Buffer.from((await SDK.RawState({ address: inventoryAddress, hash })).state, "hex");
+    const rawInventoryState = Buffer.from((await sdk.RawState({ address: inventoryAddress, hash })).state, "hex");
     const inventory: BencodexDict = require("bencodex").decode(rawInventoryState);
 
     if (avatar === null || avatar === undefined) {

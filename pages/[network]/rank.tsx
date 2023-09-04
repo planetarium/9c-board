@@ -1,6 +1,6 @@
 import type { NextPage, GetServerSideProps } from 'next'
-import { RankRow, RankRowProps } from '../components/rank/RankRow'
-import SDK from "../sdk"
+import { RankRow, RankRowProps } from '../../components/rank/RankRow'
+import { networkToSDK } from './network-util'
 
 interface RankProps {
   rows: RankRowProps[]
@@ -20,10 +20,12 @@ export const getServerSideProps: GetServerSideProps<RankProps> = async (context)
     throw new Error("Page parameter is not a string.");
   }
 
-  const res = await SDK.RankingMap({
+  const sdk = networkToSDK(context);
+
+  const res = await sdk.RankingMap({
     index: parseInt(page),
   });
-  let rows = res.stateQuery.rankingMap?.rankingInfos.map((info, index) => {
+  let rows = res.stateQuery.rankingMap?.rankingInfos.map((info: any, index: any) => {
     return {
     name: info.avatarName,
     rank: index,

@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next"
-import SDK, { internalGraphQLSDK, previewnetGraphQLSDK } from "../../../sdk";
+import { networkToSDK } from "../network-util";
 
 interface TableSheetPageProps {
     tableSheet: string | null,
@@ -60,16 +60,11 @@ const getHash = async (hash: string | undefined, index: string | undefined) => {
 
 export const getServerSideProps: GetServerSideProps<TableSheetPageProps> = async (context) => {
     const name = context.query.name;
-    const network = context.query.network;
     const hash = context.query.hash;
     const index = context.query.index;
 
     if (typeof name !== "string") {
         throw new Error("Table sheet name parameter is not a string.");
-    }
-
-    if (typeof network !== "string") {
-        throw new Error("Network name parameter is not a string.");
     }
 
     if (hash !== undefined && typeof hash !== "string") {
@@ -80,25 +75,10 @@ export const getServerSideProps: GetServerSideProps<TableSheetPageProps> = async
         throw new Error("Block index parameter is not a string.");
     }
 
+    const sdk = networkToSDK(context);
+
     const blockHash = await getHash(hash, index);
 
-    const networkToSDK = (network: string) => {
-        if (network === "9c-main") {
-            return SDK;
-        }
-
-        if (network === "9c-internal") {
-            return internalGraphQLSDK;
-        }
-
-        if (network === "9c-previewnet") {
-            return previewnetGraphQLSDK;
-        }
-
-        throw new TypeError();
-    }
-
-    const sdk = networkToSDK(network);
     const address = require("node:crypto").createHmac("sha1", Buffer.from(name, "utf8"))
         .update(Buffer.from("0000000000000000000000000000000000000003", "hex"))
         .digest("hex");
