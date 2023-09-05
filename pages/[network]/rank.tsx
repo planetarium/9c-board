@@ -1,6 +1,6 @@
 import type { NextPage, GetServerSideProps } from 'next'
 import { RankRow, RankRowProps } from '../../components/rank/RankRow'
-import { networkToSDK } from './network-util'
+import { networkToSDK } from '../../network-util'
 
 interface RankProps {
   rows: RankRowProps[]

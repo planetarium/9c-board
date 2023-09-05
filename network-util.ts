@@ -1,5 +1,5 @@
 import { GetServerSidePropsContext } from "next/types";
-import SDK, { internalGraphQLSDK, previewnetGraphQLSDK, stakeTestnetGraphQLSDK } from "../../sdk";
+import SDK, { internalGraphQLSDK, previewnetGraphQLSDK, stakeTestnetGraphQLSDK } from "./sdk";
 
 export const networkToSDK = (context: GetServerSidePropsContext) => {
     const network = context.query.network;

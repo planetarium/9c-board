@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next"
-import { networkToSDK } from "../network-util";
+import { networkToSDK } from "../../../network-util";
 
 interface Agent {
     gold: string;
