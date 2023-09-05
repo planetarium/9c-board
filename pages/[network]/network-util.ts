@@ -1,5 +1,5 @@
 import { GetServerSidePropsContext } from "next/types";
-import SDK, { internalGraphQLSDK, previewnetGraphQLSDK } from "../../sdk";
+import SDK, { internalGraphQLSDK, previewnetGraphQLSDK, stakeTestnetGraphQLSDK } from "../../sdk";
 
 export const networkToSDK = (context: GetServerSidePropsContext) => {
     const network = context.query.network;
@@ -17,6 +17,10 @@ export const networkToSDK = (context: GetServerSidePropsContext) => {
 
     if (network === "9c-previewnet") {
         return previewnetGraphQLSDK;
+    }
+
+    if (network === "9c-stake-test") {
+        return stakeTestnetGraphQLSDK;
     }
 
     throw new TypeError();
