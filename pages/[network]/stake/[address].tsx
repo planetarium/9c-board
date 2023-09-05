@@ -2,6 +2,7 @@ import type { NextPage, GetServerSideProps } from "next"
 import { networkToSDK } from "../../../network-util";
 import { BencodexList, decode } from "bencodex";
 import React from "react";
+import * as crypto from "node:crypto";
 
 interface StakeStateV1 {
     version: 1,
