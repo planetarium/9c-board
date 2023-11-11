@@ -1,6 +1,6 @@
 import type { NextPage, GetServerSideProps } from "next"
 import type { BencodexDict, BencodexValue } from "bencodex";
-import { networkToSDK } from "../../../network-util";
+import { networkToSDK } from "../../../sdk";
 
 interface Avatar {
     name: string,

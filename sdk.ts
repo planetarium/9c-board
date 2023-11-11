@@ -1,20 +1,33 @@
+import { GetServerSidePropsContext } from "next/types";
 import { getSdk } from "./generated/graphql-request";
 import { GraphQLClient } from "graphql-request"
 
-if (process.env.MAINNET_GRAPHQL_ENDPOINT === undefined || process.env.INTERNAL_GRAPHQL_ENDPOINT === undefined || process.env.PREVIEWNET_GRAPHQL_ENDPOINT === undefined || process.env.STAKETESTNET_GRAPHQL_ENDPOINT === undefined) {
+if (process.env.NETWORK_CONF_MAP === undefined) {
     throw new Error("All required environment variables are not set.");
 }
 
-const client = new GraphQLClient(process.env.MAINNET_GRAPHQL_ENDPOINT);
-const headlessGraphQLSDK = getSdk(client);
+function parseNetworkConfMap(confMapString: string): Map<string, ReturnType<typeof getSdk>> {
+    const map = new Map();
+    for (const pair of confMapString.split(',')) {
+        const [network, graphqlEndpoint] = pair.split('=');
+        map.set(network, getSdk(new GraphQLClient(graphqlEndpoint)));
+    }
 
-const internalNetworkClient = new GraphQLClient(process.env.INTERNAL_GRAPHQL_ENDPOINT);
-export const internalGraphQLSDK = getSdk(internalNetworkClient);
+    return map;
+}
 
-// FIXME: make networks configurable
-const previewnetNetworkClient = new GraphQLClient(process.env.PREVIEWNET_GRAPHQL_ENDPOINT);
-export const previewnetGraphQLSDK = getSdk(previewnetNetworkClient);
+const networkToSdkMap = parseNetworkConfMap(process.env.NETWORK_CONF_MAP);
 
-const stakeTestNetworkClient = new GraphQLClient(process.env.STAKETESTNET_GRAPHQL_ENDPOINT);
-export const stakeTestnetGraphQLSDK = getSdk(stakeTestNetworkClient);
-export default headlessGraphQLSDK;
+export const networkToSDK = (context: GetServerSidePropsContext) => {
+    const network = context.query.network;
+    if (typeof network !== "string") {
+        throw new Error("Network name parameter is not a string.");
+    }
+
+    const sdk = networkToSdkMap.get(network);
+    if (sdk === undefined) {
+        throw new TypeError("There is no such network: " + network);
+    }
+
+    return sdk;
+}
