@@ -4,6 +4,16 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: "/9c-main/:path*",
+        destination: "/odin/:path*",
+        permanent: true,
+      },
+      {
+        source: "/9c-internal/:path*",
+        destination: "/odin-internal/:path*",
+        permanent: true,
+      },
+      {
         source: "/agent/:address",
         destination: "/9c-main/agent/:address",
         permanent: true,
