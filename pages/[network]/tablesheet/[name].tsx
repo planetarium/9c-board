@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next"
-import { networkToSDK } from "../../../network-util";
+import { networkToSDK } from "../../../sdk";
 import { Sdk } from "../../../generated/graphql-request";
 
 interface TableSheetPageProps {

@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next"
-import { networkToSDK } from "../../../network-util";
+import { networkToSDK } from "../../../sdk";
 import { decode } from "bencodex";
 import React from "react";
 import { JSONTree } from "react-json-tree";
