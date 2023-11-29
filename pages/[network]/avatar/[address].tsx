@@ -1,11 +1,50 @@
 import type { NextPage, GetServerSideProps } from "next"
 import type { BencodexDict, BencodexValue } from "bencodex";
 import { networkToSDK } from "../../../sdk";
+import { CurrencyInput } from "../../../generated/graphql-request";
+
+const CURRENCIES: CurrencyInput[] = [
+    {
+        ticker: "CRYSTAL",
+        decimalPlaces: 18,
+        minters: [],
+    },
+];
+
+const TICKERS = [
+    "RUNESTONE_FENRIR1",
+    "RUNESTONE_FENRIR2",
+    "RUNESTONE_FENRIR3",
+    "RUNESTONE_SAEHRIMNIR1",
+    "RUNESTONE_SAEHRIMNIR2",
+    "RUNESTONE_SAEHRIMNIR3",
+    "RUNESTONE_VAMPIRIC",
+    "RUNESTONE_STUN",
+    "RUNE_GOLDENLEAF",
+    "RUNE_ADVENTURER",
+    "SOULSTONE_1001",
+    "SOULSTONE_1002",
+    "SOULSTONE_1003",
+    "SOULSTONE_1004",
+] as const;
+for (const ticker of TICKERS) {
+    CURRENCIES.push({
+        ticker: ticker,
+        decimalPlaces: 0,
+        minters: [],
+    });
+}
+
+interface FAV {
+    ticker: string,
+    amount: number,
+}
 
 interface Avatar {
     name: string,
     level: number,
     actionPoint: number,
+    favs: FAV[],
     inventory: Inventory,
 }
 
@@ -47,7 +86,18 @@ const AvatarPage: NextPage<AvatarPageProps> = ({avatar}) => {
     return (
         <>
             <p>Lv.{avatar.level} {avatar.name} ({avatar.actionPoint}/120)</p>
-            <h1 className="text-3xl font-extrabold">Inventory</h1>
+            <h1 className="text-3xl font-extrabold mt-10 mb-5">FAVs</h1>
+            <div className="grid grid-cols-6 content-center">
+                {
+                    avatar.favs.filter(x => x.amount > 0).map(({ ticker, amount }) => 
+                        <div className="" key={ticker}>
+                            <img className="inline m-1 w-10 h-10" title={String(ticker)} src={`https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/FungibleAssetValue/${ticker}.png`} />
+                            <span className="font-bold">{amount}</span>
+                        </div>
+                    )
+                }
+            </div>
+            <h1 className="text-3xl font-extrabold mt-10 mb-5">Inventory</h1>
             <div className="flex flex-row flex-wrap space-y-3">
                 {Array.from(aggregatedItems.entries())
                     .map(([id, count]) => 
@@ -91,6 +141,18 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (co
             }
         }
     }
+
+    const fetchedFavs = await Promise.all(CURRENCIES.map(currency => sdk.GetBalance({
+        currency: currency,
+        address: currency.ticker === "CRYSTAL" ? avatar.agentAddress : address,
+        hash: hash,
+    })));
+    const favs = fetchedFavs.map((resp, index) => {
+        return {
+            ticker: CURRENCIES[index].ticker,
+            amount: parseFloat(resp.stateQuery.balance.quantity),
+        }
+    });
 
     function itemMapToObject(item: BencodexDict): Item {
         const rawItemId = item.get("itemId") || item.get("item_id");
@@ -136,6 +198,7 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (co
                 name: avatar.name,
                 actionPoint: avatar.actionPoint,
                 level: avatar.level,
+                favs,
                 inventory: {
                     items: Array.from(inventory.values())
                         .map((v: BencodexValue, _) => {
