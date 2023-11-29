@@ -20,6 +20,7 @@ query Avatar($address: Address!) {
             name
             actionPoint
             level
+            agentAddress
         }
     }
 }
@@ -52,6 +53,14 @@ query GetBlockHashByBlockIndex($index: ID!) {
             block(index: $index) {
                 hash
             }
+        }
+    }
+}
+
+query GetBalance($address: Address!, $currency: CurrencyInput!, $hash: ByteString = null) {
+    stateQuery(hash: $hash) {
+        balance(address: $address, currency: $currency) {
+            quantity
         }
     }
 }
