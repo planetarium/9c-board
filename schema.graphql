@@ -10,11 +10,14 @@ type StandaloneQuery {
     hash: ByteString
   ): StateQuery!
   state(
-    # The address of state to fetch from the chain.
-    address: Address!
-
     # The hash of the block used to fetch state from chain.
     hash: ByteString
+
+    # The address of account to fetch from the chain.
+    accountAddress: Address!
+
+    # The address of state to fetch from the account.
+    address: Address!
   ): ByteString
   transferNCGHistories(
     blockHash: ByteString!
@@ -249,6 +252,7 @@ type StateQuery {
     avatarAddress: Address!
     filterBounds: Boolean! = true
   ): [ArenaParticipantType]!
+  cachedSheet(tableName: String!): String
 }
 
 type AvatarStateType {
@@ -562,6 +566,7 @@ type InventoryItemType {
   locked: Boolean!
   lockId: Guid
   tradableId: Guid
+  fungibleItemId: String
 }
 
 type RuneStateType {
@@ -1242,6 +1247,7 @@ type ExplorerQuery {
   transactionQuery: TransactionQuery
   stateQuery: LibplanetStateQuery
   nodeState: NodeState!
+  helperQuery: HelperQuery
 }
 
 type BlockQuery {
@@ -1457,32 +1463,127 @@ enum TxStatus {
   STAGING
   SUCCESS
   FAILURE
+  INCLUDED
 }
 
 scalar HashDigest_SHA256
 
 type LibplanetStateQuery {
+  world(blockHash: BlockHash, stateRootHash: HashDigestSHA256): WorldState!
+
+  # Retrieves states from the legacy account.
   states(
     addresses: [Address!]!
     offsetBlockHash: ID
     offsetStateRootHash: HashDigest_SHA256
   ): [BencodexValue]!
+
+  # Retrieves balance from the legacy account.
   balance(
     owner: Address!
     currency: CurrencyInput!
     offsetBlockHash: ID
     offsetStateRootHash: HashDigest_SHA256
   ): FungibleAssetValue!
+
+  # Retrieves total supply from the legacy account.
   totalSupply(
     currency: CurrencyInput!
     offsetBlockHash: ID
     offsetStateRootHash: HashDigest_SHA256
   ): FungibleAssetValue
+
+  # Retrieves validator set from the legacy account.
   validators(
     offsetBlockHash: ID
     offsetStateRootHash: HashDigest_SHA256
   ): [Validator!]
 }
+
+type WorldState {
+  # The state root hash of the world state.
+  stateRootHash: HashDigestSHA256!
+
+  # The legacy flag of the world state.
+  legacy: Boolean!
+
+  # Gets the account associated with given address.
+  account(
+    # The address of an account to retrieve.
+    address: Address!
+  ): AccountState!
+
+  # Gets the accounts associated with given addresses.
+  accounts(
+    # The list of addresses of accounts to retrieve.
+    addresses: [Address!]!
+  ): [AccountState!]!
+}
+
+scalar HashDigestSHA256
+
+# Represents a raw account state.  This is meant to represent a raw storage state void of any application layer context and/or logic.  In particular, this does not deal with currency or fungible asset value directly, which requires additional information on currency such as its ticker and possible minters, etc. while interpreting the data retrieved with the provided contextual information. The same is true for validator sets.
+type AccountState {
+  # The state root hash associated with this account state.
+  stateRootHash: HashDigestSHA256!
+
+  # The state at given address.
+  state(
+    # The address to look up.
+    address: Address!
+  ): IValue
+
+  # The states at given addresses.
+  states(
+    # The list of addresses to look up.
+    addresses: [Address!]!
+  ): [IValue]!
+
+  # Balance at given address and currency hash pair.
+  balance(
+    # The address to look up.
+    address: Address!
+
+    # The currency hash to look up.
+    currencyHash: HashDigestSHA1!
+  ): IValue
+
+  # Balances at given addresses and currency hash pair.
+  balances(
+    # The list of addresses to look up.
+    addresses: [Address!]!
+
+    # The currency hash to look up.
+    currencyHash: HashDigestSHA1!
+  ): [IValue]!
+
+  # Total supply in circulation, if recorded, for given currency hash.
+  totalSupply(
+    # The currency hash to look up.
+    currencyHash: HashDigestSHA1!
+  ): IValue
+
+  # The validator set.
+  validatorSet: IValue
+}
+
+type IValue {
+  # A hexadecimal representation of the bencodex value encoded as byte array.
+  hex: String!
+
+  # A base64 representation of the bencodex value encoded to byte array.
+  base64: String!
+
+  # A human readable representation of the bencodex value.
+  inspection: String!
+
+  # A JSON representation of the bencodex value
+  json: String!
+}
+
+scalar HashDigestSHA1
+
+scalar BlockHash
 
 scalar BencodexValue
 
@@ -1510,6 +1611,21 @@ type BoundPeer {
 
   # The address of the miner.
   publicIpAddress: String
+}
+
+# A number of queries for convenience.
+type HelperQuery {
+  # Converts currency info to currency hash.
+  currencyHash(
+    # The currency to convert.
+    currency: CurrencyInput!
+  ): HashDigestSHA1!
+
+  # Decodes hex encoded bencodex value
+  bencodexValue(
+    # The byte array in hex representation to decode.
+    hex: String!
+  ): IValue!
 }
 
 type ValidationQuery {
@@ -1732,8 +1848,11 @@ type ActionQuery {
     # A string value to be transferred.
     amount: String!
 
-    # A currency type to be transferred.
-    currency: CurrencyEnum!
+    # A enum value of currency to be transferred.
+    currency: CurrencyEnum
+
+    # A currency to be transferred.
+    rawCurrency: CurrencyInput
 
     # A 80-max length string to note.
     memo: String
@@ -1983,6 +2102,16 @@ type ActionQuery {
     # Count to summon. Must between 1 and 10.
     summonCount: Int!
   ): ByteString!
+  runeSummon(
+    # Avatar address to get summoned items
+    avatarAddress: Address!
+
+    # Summon group id
+    groupId: Int!
+
+    # Count to summon. Must between 1 and 10.
+    summonCount: Int!
+  ): ByteString!
   claimItems(
     # List of pair of avatar address, List<FAV> to claim.
     claimData: [ClaimDataInputType!]!
@@ -2122,8 +2251,11 @@ type ActionTxQuery {
     # A string value to be transferred.
     amount: String!
 
-    # A currency type to be transferred.
-    currency: CurrencyEnum!
+    # A enum value of currency to be transferred.
+    currency: CurrencyEnum
+
+    # A currency to be transferred.
+    rawCurrency: CurrencyInput
 
     # A 80-max length string to note.
     memo: String
@@ -2364,6 +2496,16 @@ type ActionTxQuery {
     memo: String
   ): ByteString!
   auraSummon(
+    # Avatar address to get summoned items
+    avatarAddress: Address!
+
+    # Summon group id
+    groupId: Int!
+
+    # Count to summon. Must between 1 and 10.
+    summonCount: Int!
+  ): ByteString!
+  runeSummon(
     # Avatar address to get summoned items
     avatarAddress: Address!
 
@@ -2588,18 +2730,6 @@ type ActionMutation {
 
     # The empty combination slot index to combine consumable. 0 ~ 3
     slotIndex: Int!
-  ): TxId!
-
-  # Start monster collect.
-  monsterCollect(
-    # The monster collection level.(1 ~ 7)
-    level: Int!
-  ): TxId!
-
-  # Get monster collection reward.
-  claimMonsterCollectionReward(
-    # Address of avatar for get reward.
-    avatarAddress: Address!
   ): TxId!
 }
 
