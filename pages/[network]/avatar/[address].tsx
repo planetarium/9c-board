@@ -49,6 +49,7 @@ interface Avatar {
 }
 
 interface Inventory {
+    migrated: boolean,
     items: ItemEntry[],
 }
 
@@ -131,7 +132,10 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (co
 
     const avatar = await (await sdk.Avatar({address})).stateQuery.avatar;
 
-    const rawInventoryState = Buffer.from((await sdk.RawState({ address: inventoryAddress, hash })).state, "hex");
+    const legacyRawInventoryState = (await sdk.RawState({ address: inventoryAddress, hash })).state;
+    const migratedRawInventoryState = (await sdk.RawState({ address, hash, accountAddress: "0x000000000000000000000000000000000000001c" })).state;
+
+    const rawInventoryState = Buffer.from(legacyRawInventoryState || migratedRawInventoryState, "hex");
     const inventory: BencodexDict = require("bencodex").decode(rawInventoryState);
 
     if (avatar === null || avatar === undefined) {
@@ -200,6 +204,7 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (co
                 level: avatar.level,
                 favs,
                 inventory: {
+                    migrated: migratedRawInventoryState !== null,
                     items: Array.from(inventory.values())
                         .map((v: BencodexValue, _) => {
                             if (!(v instanceof Map)) {

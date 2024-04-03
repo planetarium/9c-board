@@ -39,8 +39,8 @@ query Agent($address: Address!) {
     }
 }
 
-query RawState($address: Address!, $hash: ByteString = null) {
-    state(address: $address, hash: $hash, accountAddress: "0x1000000000000000000000000000000000000000")
+query RawState($address: Address!, $hash: ByteString = null, $accountAddress: Address! = "0x1000000000000000000000000000000000000000") {
+    state(address: $address, hash: $hash, accountAddress: $accountAddress)
 }
 
 query GetGoldBalance($address: Address!, $hash: ByteString = null) {
