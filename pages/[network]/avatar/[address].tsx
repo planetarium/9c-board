@@ -135,7 +135,7 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (co
     const legacyRawInventoryState = (await sdk.RawState({ address: inventoryAddress, hash })).state;
     const migratedRawInventoryState = (await sdk.RawState({ address, hash, accountAddress: "0x000000000000000000000000000000000000001c" })).state;
 
-    const rawInventoryState = Buffer.from(legacyRawInventoryState || migratedRawInventoryState, "hex");
+    const rawInventoryState = Buffer.from(migratedRawInventoryState || legacyRawInventoryState, "hex");
     const inventory: BencodexDict = require("bencodex").decode(rawInventoryState);
 
     if (avatar === null || avatar === undefined) {
