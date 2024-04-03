@@ -1,6 +1,8 @@
 import type { NextPage } from "next"
 import { useState } from "react"
 
+export const runtime = 'edge';
+
 type Address = string & { __new_type_id: "Address" };
 function isAddress(value: any): value is Address {
     return typeof value === "string" && value.startsWith("0x") && value.length === 42;

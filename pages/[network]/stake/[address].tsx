@@ -4,6 +4,8 @@ import { BencodexList, decode } from "bencodex";
 import React from "react";
 import * as crypto from "node:crypto";
 
+export const runtime = 'edge';
+
 interface StakeStateV1 {
     version: 1,
     deposit: number;

@@ -2,6 +2,8 @@ import type { NextPage, GetServerSideProps } from "next"
 import { networkToSDK } from "../../../sdk";
 import { Sdk } from "../../../generated/graphql-request";
 
+export const runtime = 'edge';
+
 interface TableSheetPageProps {
     tableSheet: string | null,
 }

@@ -2,6 +2,8 @@ import type { NextPage, GetServerSideProps } from 'next'
 import { RankRow, RankRowProps } from '../../components/rank/RankRow'
 import { networkToSDK } from '../../sdk'
 
+export const runtime = 'edge';
+
 interface RankProps {
   rows: RankRowProps[]
 }
