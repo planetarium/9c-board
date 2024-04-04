@@ -4,7 +4,7 @@ import { BencodexList, decode } from "bencodex";
 import React from "react";
 import * as crypto from "node:crypto";
 
-export const runtime = 'edge';
+export const config = { runtime: 'edge' };
 
 interface StakeStateV1 {
     version: 1,

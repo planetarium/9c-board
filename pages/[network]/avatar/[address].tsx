@@ -3,7 +3,7 @@ import type { BencodexDict, BencodexValue } from "bencodex";
 import { networkToSDK } from "../../../sdk";
 import { CurrencyInput } from "../../../generated/graphql-request";
 
-export const runtime = 'edge';
+export const config = { runtime: 'edge' };
 
 const CURRENCIES: CurrencyInput[] = [
     {

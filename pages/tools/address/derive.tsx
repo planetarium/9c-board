@@ -1,7 +1,7 @@
 import type { NextPage } from "next"
 import { useState } from "react"
 
-export const runtime = 'edge';
+export const config = { runtime: 'edge' };
 
 type Address = string & { __new_type_id: "Address" };
 function isAddress(value: any): value is Address {
