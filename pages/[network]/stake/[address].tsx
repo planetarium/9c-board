@@ -2,7 +2,7 @@ import type { NextPage, GetServerSideProps } from "next"
 import { networkToSDK } from "../../../sdk";
 import { BencodexList, decode } from "bencodex";
 import React from "react";
-import * as crypto from "node:crypto";
+import { deriveAddress } from "../../../utils";
 
 export const config = { runtime: 'edge' };
 
@@ -151,23 +151,6 @@ function deserializeStakeStateContract(state: BencodexList): Contract {
 type Address = string & { __new_type_id: "Address" };
 function isAddress(value: any): value is Address {
     return typeof value === "string" && value.startsWith("0x") && value.length === 42;
-}
-
-async function deriveAddress(
-    address: Address,
-    deriveKey: string
-  ): Promise<Address> {
-    const key = await crypto.subtle.importKey(
-      "raw",
-      new TextEncoder().encode(deriveKey),
-      { name: "HMAC", hash: "SHA-1" },
-      false,
-      ["sign"]
-    );
-  
-    const result = await crypto.subtle.sign("HMAC", key, Buffer.from(address.substring(2), "hex"));
-    const resultAddress = "0x" + Buffer.from(result).toString("hex");
-    return resultAddress as Address;
 }
 
 export const getServerSideProps: GetServerSideProps<StakePageProps> = async (context) => {

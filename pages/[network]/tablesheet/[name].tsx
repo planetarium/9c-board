@@ -1,6 +1,7 @@
 import type { NextPage, GetServerSideProps } from "next"
 import { networkToSDK } from "../../../sdk";
 import { Sdk } from "../../../generated/graphql-request";
+import { deriveAddress } from "../../../utils";
 
 export const config = { runtime: 'edge' };
 
@@ -82,9 +83,7 @@ export const getServerSideProps: GetServerSideProps<TableSheetPageProps> = async
 
     const blockHash = await getHash(hash, index, sdk);
 
-    const address = require("node:crypto").createHmac("sha1", Buffer.from(name, "utf8"))
-        .update(Buffer.from("0000000000000000000000000000000000000003", "hex"))
-        .digest("hex");
+    const address = deriveAddress("0x0000000000000000000000000000000000000003", name);
 
     try {
         const state = Buffer.from((await sdk.RawState({address, hash: blockHash})).state, "hex");
