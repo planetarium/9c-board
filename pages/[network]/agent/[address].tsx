@@ -1,7 +1,7 @@
 import type { NextPage, GetServerSideProps } from "next"
 import { networkToSDK } from "../../../sdk";
 
-export const config = { runtime: 'edge' };
+export const runtime = 'edge';
 
 interface Agent {
     gold: string;
