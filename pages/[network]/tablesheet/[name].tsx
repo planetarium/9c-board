@@ -2,7 +2,7 @@ import type { NextPage, GetServerSideProps } from "next";
 import { getSheet } from "../../tools/apiClient";
 
 interface TableSheetPageProps {
-    tableSheet: string | null,
+  tableSheet: string | null;
 }
 
 const TableSheetPage: NextPage<TableSheetPageProps> = ({ tableSheet }) => {
@@ -59,7 +59,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const name = context.query.name as string;
 
   try {
-    const sheet = await getSheet(network, name, "csv");
+    const sheet = await getSheet(network, name);
     return { props: { tableSheet: sheet } };
   } catch (error) {
     console.error("Error fetching sheet:", error);

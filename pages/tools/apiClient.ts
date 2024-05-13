@@ -49,10 +49,8 @@ export async function getSheetNames(network: string): Promise<string[]> {
   return await fetchAPI<string[]>(`${network}/sheets/names`);
 }
 
-export async function getSheet(
-  network: string,
-  name: string,
-  format: "json" | "csv"
-): Promise<string> {
-  return await fetchAPI<string>(`${network}/sheets/${name}?format=${format}`);
+export async function getSheet(network: string, name: string): Promise<string> {
+  return await fetchAPI<string>(`${network}/sheets/${name}`, {
+    headers: { accept: "text/csv" },
+  });
 }
