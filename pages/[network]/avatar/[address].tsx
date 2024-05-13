@@ -2,9 +2,6 @@ import type { NextPage, GetServerSideProps } from "next"
 import type { BencodexDict, BencodexValue } from "bencodex";
 import { networkToSDK } from "../../../sdk";
 import { CurrencyInput } from "../../../generated/graphql-request";
-import { deriveAddress } from "../../../utils";
-
-export const config = { runtime: 'edge' };
 
 const CURRENCIES: CurrencyInput[] = [
     {
@@ -129,7 +126,9 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (co
     })).chainQuery.blockQuery?.block?.hash;
 
     const legacyInventoryKey = "inventory" as const;
-    const inventoryAddress = deriveAddress(address, legacyInventoryKey);
+    const inventoryAddress = require("node:crypto").createHmac("sha1", Buffer.from(legacyInventoryKey, "utf8"))
+        .update(Buffer.from(address.replace("0x", ""), "hex"))
+        .digest("hex");
 
     const avatar = await (await sdk.Avatar({address})).stateQuery.avatar;
 

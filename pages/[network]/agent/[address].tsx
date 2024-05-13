@@ -1,8 +1,6 @@
 import type { NextPage, GetServerSideProps } from "next"
 import { networkToSDK } from "../../../sdk";
 
-export const config = { runtime: 'edge' };
-
 interface Agent {
     gold: string;
     avatars: Avatar[];
