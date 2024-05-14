@@ -1,9 +1,7 @@
 import type { NextPage, GetServerSideProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { getSheetNames } from "../../tools/apiClient";
-
-export const config = { runtime: "edge" };
+import { getSheetNames } from "../../../apiClient";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const network = context.query.network as string;
