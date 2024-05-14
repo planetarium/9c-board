@@ -6,23 +6,54 @@ A web application to provide useful tools. You can access it in https://planetar
 
 ## Devlopment
 
+### Configure Environment
+
+- Create `.env` file to project root directory.
+
 ```
+# Set network config map e.g.,
+NETWORK_CONF_MAP="odin=http://9c-main-rpc-1.nine-chronicles.com/graphql,heimdall=http://heimdall-rpc-1.nine-chronicles.com/graphql"
+```
+
+### Run
+
+```
+yarn install
+yarn codegen
 yarn dev
 ```
 
 ## Features
 
+### Planets & Networks
+
+NineChronicle's blockchain network is divided into planets, which can be found below.
+- main network: https://planets.nine-chronicles.com/planets
+- internal network: https://planets-internal.nine-chronicles.com/planets
+
+As you can see above, NineChronicle's planets are divided into main and internal networks for deployment purposes.
+Therefore, each of the features provided here must be used separately for each planet and network.
+
+This is a common way to determine what goes into the '[NETWORK]' location in the URL of a feature, which we'll discuss below. 
+
+||main|internal|
+|:-:|:-:|:-:|
+|odin|odin|odin-internal|
+|heimdall|heimdall|heimdall-internal|
+
+And since this information is tied to the `NETWORK_CONF_MAP` value you define in your `.env` file, you can change it.
+
 ### Show tablesheet in web
 
 `https://planetarium-9c-board.netlify.app/[NETWORK]/tablesheet/[TABLESHEET_NAME]`
 
-For instance, you can see current `StakeRegularRewardSheet` of `mainnet` network in `https://planetarium-9c-board.netlify.app/9c-main/tablesheet/StakeRegularRewardSheet`.
+For instance, you can see current `StakeRegularRewardSheet` of `odin`-`mainnet` network in `https://planetarium-9c-board.netlify.app/odin/tablesheet/StakeRegularRewardSheet`.
 
 <img width="880" alt="image" src="https://user-images.githubusercontent.com/26626194/224272344-622e9d80-a74c-48bf-82b6-62f1e8dde3f1.png">
 
 ### Show avatar in web
 
-`https://planetarium-9c-board.netlify.app/avatar/[AVATAR_ADDRESS]?<index=[BLOCK_INDEX]>`
+`https://planetarium-9c-board.netlify.app/[NETWORK]/avatar/[AVATAR_ADDRESS]?<index=[BLOCK_INDEX]>`
 
 You can see some avatar state in web.
 
