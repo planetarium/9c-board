@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next";
-import { getSheet } from "../../tools/apiClient";
+import { getSheet } from "../../../apiClient";
 
 interface TableSheetPageProps {
   tableSheet: string | null;
