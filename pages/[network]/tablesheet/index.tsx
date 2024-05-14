@@ -3,8 +3,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { getSheetNames } from "../../tools/apiClient";
 
-export const config = { runtime: "edge" };
-
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const network = context.query.network as string;
 
