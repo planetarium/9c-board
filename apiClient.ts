@@ -54,3 +54,12 @@ export async function getSheet(network: string, name: string): Promise<string> {
     headers: { accept: "text/csv" },
   });
 }
+
+export async function getAvatarInventory(network: string, avatarAddress: string): Promise<any | null> {
+  try {
+    return await fetchAPI<any>(`${network}/avatars/${avatarAddress}/inventory`);
+  }
+  catch (error) {
+    return null;
+  }
+}
