@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next";
-import { getAvatarInventory } from "../../../apiClient";
+import { getAvatar, getAvatarInventory } from "../../../apiClient";
 import { networkToSDK } from "../../../sdk";
 import { CurrencyInput } from "../../../generated/graphql-request";
 import { getNetworkType, getNodeType } from "../../../utils/network";
@@ -147,27 +147,21 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
         })
     ).chainQuery.blockQuery?.block?.hash;
 
-    const avatar = (await sdk.Avatar({ address })).stateQuery.avatar;
-    if (avatar === null || avatar === undefined) {
-        return {
-            props: {
-                avatar: null,
-            },
-        };
-    }
-
+    const avatarJsonObj = await getAvatar(
+        getNodeType(network),
+        getNetworkType(network),
+        address);
     const inventoryJsonObj = await getAvatarInventory(
         getNodeType(network),
         getNetworkType(network),
-        address
-    );
+        address);
     const inventoryObj = parseToInventory(inventoryJsonObj);
 
     const fetchedFavs = await Promise.all(
-        CURRENCIES.map((currency) =>
-            sdk.GetBalance({
+        CURRENCIES.map(
+            (currency) => sdk.GetBalance({
                 currency: currency,
-                address: currency.ticker === "CRYSTAL" ? avatar.agentAddress : address,
+                address: currency.ticker === "CRYSTAL" ? avatarJsonObj.agentAddress : address,
                 hash: hash,
             })
         )
@@ -213,9 +207,9 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
     return {
         props: {
             avatar: {
-                name: avatar.name,
-                actionPoint: avatar.actionPoint,
-                level: avatar.level,
+                name: avatarJsonObj.avatarName,
+                actionPoint: avatarJsonObj.actionPoint,
+                level: avatarJsonObj.level,
                 favs,
                 inventory: inventoryObj,
             },
