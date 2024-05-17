@@ -13,18 +13,12 @@ function parseNetworkConfMap(confMapString: string): Map<string, ReturnType<type
 }
 
 
-export const networkToSDK = (context: GetServerSidePropsContext) => {
+export const networkToSDK = (network: string) => {
     if (process.env.NETWORK_CONF_MAP === undefined) {
         throw new Error("All required environment variables are not set.");
     }
 
     const networkToSdkMap = parseNetworkConfMap(process.env.NETWORK_CONF_MAP);
-
-    const network = context.query.network;
-    if (typeof network !== "string") {
-        throw new Error("Network name parameter is not a string.");
-    }
-
     const sdk = networkToSdkMap.get(network);
     if (sdk === undefined) {
         throw new TypeError("There is no such network: " + network);

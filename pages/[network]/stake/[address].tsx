@@ -154,27 +154,32 @@ function isAddress(value: any): value is Address {
 async function deriveAddress(
     address: Address,
     deriveKey: string
-  ): Promise<Address> {
+): Promise<Address> {
     const key = await crypto.subtle.importKey(
-      "raw",
-      new TextEncoder().encode(deriveKey),
-      { name: "HMAC", hash: "SHA-1" },
-      false,
-      ["sign"]
+        "raw",
+        new TextEncoder().encode(deriveKey),
+        { name: "HMAC", hash: "SHA-1" },
+        false,
+        ["sign"]
     );
-  
+
     const result = await crypto.subtle.sign("HMAC", key, Buffer.from(address.substring(2), "hex"));
     const resultAddress = "0x" + Buffer.from(result).toString("hex");
     return resultAddress as Address;
 }
 
 export const getServerSideProps: GetServerSideProps<StakePageProps> = async (context) => {
+    const network = context.query.network;
+    if (typeof (network) !== "string") {
+        throw new Error("Network parameter is not a string.");
+    }
+
     const address = context.query.address;
     if (!isAddress(address)) {
         throw new Error("Address parameter is not an address.");
     }
 
-    const sdk = networkToSDK(context);
+    const sdk = networkToSDK(network);
 
     const blockIndexString = context.query.blockIndex || context.query.index;
     const blockIndex = blockIndexString === undefined ? -1 : Number(blockIndexString);
@@ -186,14 +191,14 @@ export const getServerSideProps: GetServerSideProps<StakePageProps> = async (con
     console.log(stakeStateAddress);
     let rawState;
     try {
-        rawState = (await sdk.RawState({address: stakeStateAddress, hash})).state as HexString | null;;
+        rawState = (await sdk.RawState({ address: stakeStateAddress, hash })).state as HexString | null;;
     } catch (e) {
         console.warn(e)
         rawState = null;
     }
 
     const stakeState = deserializeStakeState(rawState);
-    const stakeStateDeposit = parseFloat((await sdk.GetGoldBalance({address: stakeStateAddress, hash})).goldBalance);
+    const stakeStateDeposit = parseFloat((await sdk.GetGoldBalance({ address: stakeStateAddress, hash })).goldBalance);
 
     return {
         props: {

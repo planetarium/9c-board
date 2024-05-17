@@ -73,7 +73,7 @@ const RawStatePage: NextPage<RawStatePageProps> = ({ state }) => {
         base0D: '#66d9ef',
         base0E: '#ae81ff',
         base0F: '#cc6633',
-      };
+    };
 
     return (
         <div className="p-10">
@@ -88,18 +88,13 @@ const RawStatePage: NextPage<RawStatePageProps> = ({ state }) => {
 
                         if (/^[0-9a-fA-F]{32}$/.test(substr)) {
                             const guidBuffer = Buffer.from(substr, "hex");
-                            const guid = `${
-                                guidBuffer.subarray(0, 4).reverse().toString("hex")
-                            }-${
-                                guidBuffer.subarray(4, 6).reverse().toString("hex")
-                            }-${
-                                guidBuffer.subarray(6, 8).reverse().toString("hex")
-                            }-${
-                                guidBuffer.subarray(8, 10).toString("hex")
-                            }-${
-                                guidBuffer.subarray(10).toString("hex")
-                            }`
-                            
+                            const guid = `${guidBuffer.subarray(0, 4).reverse().toString("hex")
+                                }-${guidBuffer.subarray(4, 6).reverse().toString("hex")
+                                }-${guidBuffer.subarray(6, 8).reverse().toString("hex")
+                                }-${guidBuffer.subarray(8, 10).toString("hex")
+                                }-${guidBuffer.subarray(10).toString("hex")
+                                }`
+
                             return <span>{guid} (Guid-like)</span>
                         }
                     }
@@ -119,12 +114,17 @@ function isAddress(value: any): value is Address {
 }
 
 export const getServerSideProps: GetServerSideProps<RawStatePageProps> = async (context) => {
+    const network = context.query.network;
+    if (typeof (network) !== "string") {
+        throw new Error("Network parameter is not a string.");
+    }
+
     const address = context.query.address;
     if (!isAddress(address)) {
         throw new Error("Address parameter is not an address.");
     }
 
-    const sdk = networkToSDK(context);
+    const sdk = networkToSDK(network);
 
     const blockIndexString = context.query.blockIndex || context.query.index;
     const blockIndex = blockIndexString === undefined ? -1 : Number(blockIndexString);
@@ -134,7 +134,7 @@ export const getServerSideProps: GetServerSideProps<RawStatePageProps> = async (
 
     let rawState;
     try {
-        rawState = (await sdk.RawState({address, hash})).state as HexString | null;;
+        rawState = (await sdk.RawState({ address, hash })).state as HexString | null;;
     } catch (e) {
         console.warn(e)
         rawState = null;

@@ -38,12 +38,17 @@ const AgentPage: NextPage<AgentPageProps> = ({ agent, blockIndex }) => {
 }
 
 export const getServerSideProps: GetServerSideProps<AgentPageProps> = async (context) => {
+    const network = context.query.network;
+    if (typeof (network) !== "string") {
+        throw new Error("Network parameter is not a string.");
+    }
+
     const address = context.query.address;
     if (typeof (address) !== "string") {
         throw new Error("Address parameter is not a string.");
     }
 
-    const sdk = networkToSDK(context);
+    const sdk = networkToSDK(network);
 
     const blockIndexString = context.query.blockIndex;
     const blockIndex = blockIndexString === undefined ? -1 : Number(blockIndexString);
