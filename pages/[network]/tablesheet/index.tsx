@@ -4,8 +4,6 @@ import { useRouter } from "next/router";
 import { getSheetNames } from "../../../apiClient";
 import { getNetworkType, getNodeType } from "../../../utils/network";
 
-export const config = { runtime: "edge" };
-
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const network_info = context.query.network as string;
 
