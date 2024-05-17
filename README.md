@@ -1,8 +1,6 @@
 # 9c-board
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/a99a7121-aa14-4b2a-b45a-6f874370dc93/deploy-status)](https://app.netlify.com/sites/planetarium-9c-board/deploys)
-
-A web application to provide useful tools. You can access it in https://planetarium-9c-board.netlify.app/.
+A web application to provide useful tools. You can access it in https://9c-board.nine-chronicles.dev/.
 
 ## Devlopment
 
@@ -12,7 +10,7 @@ A web application to provide useful tools. You can access it in https://planetar
 
 ```
 # Set network config map e.g.,
-NETWORK_CONF_MAP="odin=http://9c-main-rpc-1.nine-chronicles.com/graphql,heimdall=http://heimdall-rpc-1.nine-chronicles.com/graphql"
+NETWORK_CONF_MAP="<networkType-nodeType>=<graphql-endpoint>,heimdall-internal=http://url/graphql,heimdall-main=http://url/graphql"
 ```
 
 ### Run

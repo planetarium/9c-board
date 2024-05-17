@@ -2,12 +2,18 @@ import type { NextPage, GetServerSideProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { getSheetNames } from "../../../apiClient";
+import { getNetworkType, getNodeType } from "../../../utils/network";
+
+export const config = { runtime: "edge" };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const network = context.query.network as string;
+  const network_info = context.query.network as string;
 
   try {
-    const sheetNames = await getSheetNames(network);
+    const sheetNames = await getSheetNames(
+      getNodeType(network_info),
+      getNetworkType(network_info)
+    );
     return { props: { sheetNames } };
   } catch (error) {
     console.error("Error fetching sheet names:", error);

@@ -1,5 +1,6 @@
 import type { NextPage, GetServerSideProps } from "next";
 import { getSheet } from "../../../apiClient";
+import { getNetworkType, getNodeType } from "../../../utils/network";
 
 interface TableSheetPageProps {
   tableSheet: string | null;
@@ -55,11 +56,15 @@ const TableSheetPage: NextPage<TableSheetPageProps> = ({ tableSheet }) => {
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const network = context.query.network as string;
+  const network_info = context.query.network as string;
   const name = context.query.name as string;
 
   try {
-    const sheet = await getSheet(network, name);
+    const sheet = await getSheet(
+      getNodeType(network_info),
+      getNetworkType(network_info),
+      name
+    );
     return { props: { tableSheet: sheet } };
   } catch (error) {
     console.error("Error fetching sheet:", error);
