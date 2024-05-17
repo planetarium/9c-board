@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next"
-import type { BencodexDict, BencodexValue } from "bencodex";
+import { getAvatarInventory } from "../../../apiClient";
 import { networkToSDK } from "../../../sdk";
 import { CurrencyInput } from "../../../generated/graphql-request";
 
@@ -49,7 +49,6 @@ interface Avatar {
 }
 
 interface Inventory {
-    migrated: boolean,
     items: ItemEntry[],
 }
 
@@ -72,7 +71,7 @@ interface AvatarPageProps {
     avatar: Avatar | null,
 }
 
-const AvatarPage: NextPage<AvatarPageProps> = ({avatar}) => {
+const AvatarPage: NextPage<AvatarPageProps> = ({ avatar }) => {
     if (avatar === null) {
         return (
             <h1>There is no avatar.</h1>
@@ -90,7 +89,7 @@ const AvatarPage: NextPage<AvatarPageProps> = ({avatar}) => {
             <h1 className="text-3xl font-extrabold mt-10 mb-5">FAVs</h1>
             <div className="grid grid-cols-6 content-center">
                 {
-                    avatar.favs.filter(x => x.amount > 0).map(({ ticker, amount }) => 
+                    avatar.favs.filter(x => x.amount > 0).map(({ ticker, amount }) =>
                         <div className="" key={ticker}>
                             <img className="inline m-1 w-10 h-10" title={String(ticker)} src={`https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/FungibleAssetValue/${ticker}.png`} />
                             <span className="font-bold">{amount}</span>
@@ -101,7 +100,7 @@ const AvatarPage: NextPage<AvatarPageProps> = ({avatar}) => {
             <h1 className="text-3xl font-extrabold mt-10 mb-5">Inventory</h1>
             <div className="flex flex-row flex-wrap space-y-3">
                 {Array.from(aggregatedItems.entries())
-                    .map(([id, count]) => 
+                    .map(([id, count]) =>
                         <div className="inline-flex w-28 h-20 border-solid border-2 border-gray-600 content-center" key={id}>
                             {/* FIXME: MAKE THIS URL CONFIGURABLE BY USER */}
                             <img className="w-16 h-16" title={String(id)} src={`https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/${id}.png`} /> <span className="font-bold">{count}</span>
@@ -113,10 +112,10 @@ const AvatarPage: NextPage<AvatarPageProps> = ({avatar}) => {
 
 export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (context) => {
     const address = context.query.address;
-    if (typeof(address) !== "string") {
+    if (typeof (address) !== "string") {
         throw new Error("Address parameter is not a string.");
     }
-    
+
     const sdk = networkToSDK(context);
 
     const blockIndexString = context.query.blockIndex;
@@ -125,19 +124,7 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (co
         index: (blockIndex as unknown) as string,  // Break assumption ID must be string.
     })).chainQuery.blockQuery?.block?.hash;
 
-    const legacyInventoryKey = "inventory" as const;
-    const inventoryAddress = require("node:crypto").createHmac("sha1", Buffer.from(legacyInventoryKey, "utf8"))
-        .update(Buffer.from(address.replace("0x", ""), "hex"))
-        .digest("hex");
-
-    const avatar = await (await sdk.Avatar({address})).stateQuery.avatar;
-
-    const legacyRawInventoryState = (await sdk.RawState({ address: inventoryAddress, hash })).state;
-    const migratedRawInventoryState = (await sdk.RawState({ address, hash, accountAddress: "0x000000000000000000000000000000000000001c" })).state;
-
-    const rawInventoryState = Buffer.from(migratedRawInventoryState || legacyRawInventoryState, "hex");
-    const inventory: BencodexDict = require("bencodex").decode(rawInventoryState);
-
+    const avatar = (await sdk.Avatar({ address })).stateQuery.avatar;
     if (avatar === null || avatar === undefined) {
         return {
             props: {
@@ -145,6 +132,9 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (co
             }
         }
     }
+
+    const inventoryJsonObj = await getAvatarInventory(context.query.network as string, address);
+    const inventoryObj = parseToInventory(inventoryJsonObj);
 
     const fetchedFavs = await Promise.all(CURRENCIES.map(currency => sdk.GetBalance({
         currency: currency,
@@ -158,41 +148,37 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (co
         }
     });
 
-    function itemMapToObject(item: BencodexDict): Item {
-        const rawItemId = item.get("itemId") || item.get("item_id");
-        const rawBuffSkills = item.get("buffSkills");
-        const rawRequiredBlockIndex = (item.get("requiredBlockIndex") || item.get("rbi")) as number | undefined;
-        const rawSkills = item.get("skills");
-        const rawStats = item.get("stats");
-        const rawStatsMap = item.get("statsMap");
-        return {
-            // buffSkills: rawBuffSkills === undefined ? null : rawBuffSkills,
-            elementalType: item.get("elemental_type") as string,
-            grade: Number(item.get("grade")),
-            id: Number(item.get("id")),
-            itemId: rawItemId === undefined ? null : Buffer.from(rawItemId as Uint8Array).toString("hex"),
-            itemSubType: item.get("item_sub_type") as string,
-            itemType: item.get("item_type") as string,
-            requiredBlockIndex: rawRequiredBlockIndex === undefined ? null : rawRequiredBlockIndex,
-            // skills: rawSkills === undefined ? null : itemSkillsToObject(rawSkills as BencodexDict),
-            // stats: rawStats === undefined ? null : itemStatsToObject(rawStats as BencodexDict),
-            // statsMap: rawStatsMap === undefined ? null : itemStatsMapToObject(rawStatsMap as BencodexDict),
+    function parseToInventory(inventoryJsonObj: any | null): Inventory {
+        if (inventoryJsonObj === null) {
+            return {
+                items: [],
+            };
         }
-    }
 
-    function itemStatsToObject(stats: BencodexDict): object {
+        var consumables = inventoryJsonObj.consumables.map(parseToItemEntry);
+        var costumes = inventoryJsonObj.costumes.map(parseToItemEntry);
+        var equipments = inventoryJsonObj.equipments.map(parseToItemEntry);
+        var materials = inventoryJsonObj.materials.map(parseToItemEntry);
         return {
-            type: Object.keys(stats),
+            items: consumables
+                .concat(costumes)
+                .concat(equipments)
+                .concat(materials),
         };
     }
 
-    // function itemStatsMapToObject(statsMap: BencodexDict): object {
-    //     return Object.fromEntries(Array.from(statsMap.entries()).map(([k, v]: [string, BencodexDict], _) => [k, v]));
-    // }
-
-    function itemSkillsToObject(skills: BencodexDict): object {
+    function parseToItemEntry(itemJsonObj: any): ItemEntry {
         return {
-            type: typeof(skills)
+            item: {
+                elementalType: itemJsonObj.elementalType,
+                grade: itemJsonObj.grade,
+                id: itemJsonObj.itemSheetId,
+                itemId: itemJsonObj.nonFungibleId,
+                itemSubType: itemJsonObj.itemSubType,
+                itemType: itemJsonObj.itemType,
+                requiredBlockIndex: itemJsonObj.requiredBlockIndex,
+            },
+            count: itemJsonObj.count,
         };
     }
 
@@ -203,20 +189,7 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (co
                 actionPoint: avatar.actionPoint,
                 level: avatar.level,
                 favs,
-                inventory: {
-                    migrated: migratedRawInventoryState !== null,
-                    items: Array.from(inventory.values())
-                        .map((v: BencodexValue, _) => {
-                            if (!(v instanceof Map)) {
-                                throw new TypeError("Unexpected value type. Please debug.");
-                            }
-
-                            return {
-                                item: itemMapToObject(v.get("item") as BencodexDict),
-                                count: Number(v.get("count") as BigInt),
-                            }; 
-                        })
-                },
+                inventory: inventoryObj,
             }
         }
     }

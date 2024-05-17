@@ -39,7 +39,7 @@ const AgentPage: NextPage<AgentPageProps> = ({ agent, blockIndex }) => {
 
 export const getServerSideProps: GetServerSideProps<AgentPageProps> = async (context) => {
     const address = context.query.address;
-    if (typeof(address) !== "string") {
+    if (typeof (address) !== "string") {
         throw new Error("Address parameter is not a string.");
     }
 
@@ -47,11 +47,7 @@ export const getServerSideProps: GetServerSideProps<AgentPageProps> = async (con
 
     const blockIndexString = context.query.blockIndex;
     const blockIndex = blockIndexString === undefined ? -1 : Number(blockIndexString);
-    const hash = (await sdk.GetBlockHashByBlockIndex({
-        index: (blockIndex as unknown) as string,  // Break assumption ID must be string.
-    })).chainQuery.blockQuery?.block?.hash;
-
-    const agent = await (await sdk.Agent({address})).stateQuery.agent;
+    const agent = (await sdk.Agent({ address })).stateQuery.agent;
     if (agent === null || agent === undefined) {
         return {
             props: {
