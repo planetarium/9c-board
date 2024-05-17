@@ -68,6 +68,19 @@ export async function getSheet(
   });
 }
 
+export async function getAvatar(
+  nodeType: NodeType,
+  networkType: NetworkType,
+  address: string
+): Promise<any | null> {
+  try {
+    return await fetchAPI<any>(nodeType, `${networkType}/avatars/${address}`);
+  }
+  catch (error) {
+    return null;
+  }
+}
+
 export async function getAvatarInventory(
   nodeType: NodeType,
   networkType: NetworkType,
