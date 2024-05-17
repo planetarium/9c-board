@@ -1,4 +1,7 @@
+import { NetworkType, NodeType } from "./constants/network";
+
 export const BASE_URL = "https://mimir.nine-chronicles.dev/";
+export const INTERNAL_BASE_URL = "https://mimir-internal.nine-chronicles.dev/";
 
 const defaultHeaders: HeadersInit = {
   "Content-Type": "application/json",
@@ -11,6 +14,7 @@ interface FetchOptions<TBody = undefined> {
 }
 
 async function fetchAPI<TResponse, TBody = undefined>(
+  nodeType: NodeType,
   endpoint: string,
   options: FetchOptions<TBody> = {}
 ): Promise<TResponse> {
@@ -23,7 +27,9 @@ async function fetchAPI<TResponse, TBody = undefined>(
       body: body ? JSON.stringify(body) : null,
     };
 
-    const url = `${BASE_URL}${endpoint}`;
+    const url =
+      (nodeType === NodeType.Internal ? INTERNAL_BASE_URL : BASE_URL) +
+      endpoint;
 
     const response = await fetch(url, config);
 
@@ -45,21 +51,34 @@ async function fetchAPI<TResponse, TBody = undefined>(
   }
 }
 
-export async function getSheetNames(network: string): Promise<string[]> {
-  return await fetchAPI<string[]>(`${network}/sheets/names`);
+export async function getSheetNames(
+  nodeType: NodeType,
+  networkType: NetworkType
+): Promise<string[]> {
+  return await fetchAPI<string[]>(nodeType, `${networkType}/sheets/names`);
 }
 
-export async function getSheet(network: string, name: string): Promise<string> {
-  return await fetchAPI<string>(`${network}/sheets/${name}`, {
+export async function getSheet(
+  nodeType: NodeType,
+  networkType: NetworkType,
+  name: string
+): Promise<string> {
+  return await fetchAPI<string>(nodeType, `${networkType}/sheets/${name}`, {
     headers: { accept: "text/csv" },
   });
 }
 
-export async function getAvatarInventory(network: string, avatarAddress: string): Promise<any | null> {
+export async function getAvatarInventory(
+  nodeType: NodeType,
+  networkType: NetworkType,
+  avatarAddress: string
+): Promise<any | null> {
   try {
-    return await fetchAPI<any>(`${network}/avatars/${avatarAddress}/inventory`);
-  }
-  catch (error) {
+    return await fetchAPI<any>(
+      nodeType,
+      `${networkType}/avatars/${avatarAddress}/inventory`
+    );
+  } catch (error) {
     return null;
   }
 }
