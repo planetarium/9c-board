@@ -16,12 +16,12 @@ const Rank: NextPage<RankProps> = ({ rows }) => {
 
 export const getServerSideProps: GetServerSideProps<RankProps> = async (context) => {
   const network = context.query.network;
-  if (typeof (network) !== "string") {
+  if (typeof(network) !== "string") {
     throw new Error("Network parameter is not a string.");
   }
 
   const page = context.query.page || "0";
-  if (typeof (page) !== "string") {
+  if (typeof(page) !== "string") {
     throw new Error("Page parameter is not a string.");
   }
 

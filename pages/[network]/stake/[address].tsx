@@ -170,7 +170,7 @@ async function deriveAddress(
 
 export const getServerSideProps: GetServerSideProps<StakePageProps> = async (context) => {
     const network = context.query.network;
-    if (typeof (network) !== "string") {
+    if (typeof(network) !== "string") {
         throw new Error("Network parameter is not a string.");
     }
 
@@ -191,7 +191,7 @@ export const getServerSideProps: GetServerSideProps<StakePageProps> = async (con
     console.log(stakeStateAddress);
     let rawState;
     try {
-        rawState = (await sdk.RawState({ address: stakeStateAddress, hash })).state as HexString | null;;
+        rawState = (await sdk.RawState({ address: stakeStateAddress, hash })).state as HexString | null;
     } catch (e) {
         console.warn(e)
         rawState = null;

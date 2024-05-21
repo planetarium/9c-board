@@ -115,7 +115,7 @@ function isAddress(value: any): value is Address {
 
 export const getServerSideProps: GetServerSideProps<RawStatePageProps> = async (context) => {
     const network = context.query.network;
-    if (typeof (network) !== "string") {
+    if (typeof(network) !== "string") {
         throw new Error("Network parameter is not a string.");
     }
 

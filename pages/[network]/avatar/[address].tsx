@@ -127,7 +127,7 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
     context
 ) => {
     const network = context.query.network;
-    if (typeof (network) !== "string") {
+    if (typeof(network) !== "string") {
         throw new Error("Network parameter is not a string.");
     }
 
