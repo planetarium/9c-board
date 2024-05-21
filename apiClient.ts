@@ -68,6 +68,22 @@ export async function getSheet(
   });
 }
 
+export async function getBalance(
+  nodeType: NodeType,
+  networkType: NetworkType,
+  address: string,
+  currencyTicker: string,
+): Promise<any | null> {
+  try {
+    return await fetchAPI<any>(
+      nodeType,
+      `${networkType}/balances/${address}/${currencyTicker}`
+    );
+  } catch (error) {
+    return null;
+  }
+}
+
 export async function getAvatar(
   nodeType: NodeType,
   networkType: NetworkType,
