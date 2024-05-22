@@ -1,18 +1,9 @@
 import type { NextPage, GetServerSideProps } from "next";
-import { getAvatar, getAvatarInventory } from "../../../apiClient";
-import { networkToSDK } from "../../../sdk";
-import { CurrencyInput } from "../../../generated/graphql-request";
+import { getBalance, getAvatar, getAvatarInventory } from "../../../apiClient";
 import { getNetworkType, getNodeType } from "../../../utils/network";
 
-const CURRENCIES: CurrencyInput[] = [
-    {
-        ticker: "CRYSTAL",
-        decimalPlaces: 18,
-        minters: [],
-    },
-];
-
-const TICKERS = [
+const CURRENCY_TICKERS = [
+    "CRYSTAL",
     "RUNESTONE_FENRIR1",
     "RUNESTONE_FENRIR2",
     "RUNESTONE_FENRIR3",
@@ -28,13 +19,6 @@ const TICKERS = [
     "SOULSTONE_1003",
     "SOULSTONE_1004",
 ] as const;
-for (const ticker of TICKERS) {
-    CURRENCIES.push({
-        ticker: ticker,
-        decimalPlaces: 0,
-        minters: [],
-    });
-}
 
 interface FAV {
     ticker: string;
@@ -127,7 +111,7 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
     context
 ) => {
     const network = context.query.network;
-    if (typeof(network) !== "string") {
+    if (typeof (network) !== "string") {
         throw new Error("Network parameter is not a string.");
     }
 
@@ -136,40 +120,25 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
         throw new Error("Address parameter is not a string.");
     }
 
-    const sdk = networkToSDK(network);
-
-    const blockIndexString = context.query.blockIndex;
-    const blockIndex =
-        blockIndexString === undefined ? -1 : Number(blockIndexString);
-    const hash = (
-        await sdk.GetBlockHashByBlockIndex({
-            index: blockIndex as unknown as string, // Break assumption ID must be string.
-        })
-    ).chainQuery.blockQuery?.block?.hash;
-
-    const avatarJsonObj = await getAvatar(
-        getNodeType(network),
-        getNetworkType(network),
-        address);
-    const inventoryJsonObj = await getAvatarInventory(
-        getNodeType(network),
-        getNetworkType(network),
-        address);
+    const nodeType = getNodeType(network);
+    const networkType = getNetworkType(network);
+    const avatarJsonObj = await getAvatar(nodeType, networkType, address);
+    const inventoryJsonObj = await getAvatarInventory(nodeType, networkType, address);
     const inventoryObj = parseToInventory(inventoryJsonObj);
-
-    const fetchedFavs = await Promise.all(
-        CURRENCIES.map(
-            (currency) => sdk.GetBalance({
-                currency: currency,
-                address: currency.ticker === "CRYSTAL" ? avatarJsonObj.agentAddress : address,
-                hash: hash,
-            })
+    const balanceJsonObjs = await Promise.all(
+        CURRENCY_TICKERS.map(
+            (currencyTicker, index) => getBalance(
+                nodeType,
+                networkType,
+                index <= 0 ? avatarJsonObj.agentAddress : address,
+                currencyTicker
+            )
         )
     );
-    const favs = fetchedFavs.map((resp, index) => {
+    const balanceObjs = balanceJsonObjs.map((resp, index) => {
         return {
-            ticker: CURRENCIES[index].ticker,
-            amount: parseFloat(resp.stateQuery.balance.quantity),
+            ticker: CURRENCY_TICKERS[index],
+            amount: resp === null ? 0 : parseFloat(resp.quantity),
         };
     });
 
@@ -210,7 +179,7 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
                 name: avatarJsonObj.avatarName,
                 actionPoint: avatarJsonObj.actionPoint,
                 level: avatarJsonObj.level,
-                favs,
+                favs: balanceObjs,
                 inventory: inventoryObj,
             },
         },
