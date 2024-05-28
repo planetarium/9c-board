@@ -1,6 +1,7 @@
 import type { NextPage, GetServerSideProps } from "next";
-import { getBalance, getAvatar, getAvatarInventory } from "../../../apiClient";
+import { getBalance, getAvatar } from "../../../apiClient";
 import { getNetworkType, getNodeType } from "../../../utils/network";
+import { getSdk } from "../../../utils/mimirGraphQLClient";
 
 const CURRENCY_TICKERS = [
     "CRYSTAL",
@@ -34,22 +35,18 @@ interface Avatar {
 }
 
 interface Inventory {
-    items: ItemEntry[];
-}
-
-interface ItemEntry {
-    item: Item;
-    count: number;
+    items: Item[];
 }
 
 interface Item {
-    elementalType: string;
+    itemSheetId: number;
     grade: number;
-    id: number;
-    itemId: string | null;
-    itemSubType: string;
     itemType: string;
+    itemSubType: string;
+    elementalType: string;
+    count: number;
     requiredBlockIndex: number | null;
+    nonFungibleId: string | null;
 }
 
 interface AvatarPageProps {
@@ -62,8 +59,8 @@ const AvatarPage: NextPage<AvatarPageProps> = ({ avatar }) => {
     }
 
     const aggregatedItems = new Map<number, number>();
-    for (const { item, count } of avatar.inventory.items) {
-        aggregatedItems.set(item.id, (aggregatedItems.get(item.id) || 0) + count);
+    for (const { itemSheetId, count } of avatar.inventory.items) {
+        aggregatedItems.set(itemSheetId, (aggregatedItems.get(itemSheetId) || 0) + count);
     }
 
     return (
@@ -123,7 +120,9 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
     const nodeType = getNodeType(network);
     const networkType = getNetworkType(network);
     const avatarJsonObj = await getAvatar(nodeType, networkType, address);
-    const inventoryJsonObj = await getAvatarInventory(nodeType, networkType, address);
+
+    const sdk = getSdk(networkType, nodeType);
+    const inventoryJsonObj = await sdk.inventory(address);
     const inventoryObj = parseToInventory(inventoryJsonObj);
     const balanceJsonObjs = await Promise.all(
         CURRENCY_TICKERS.map(
@@ -149,27 +148,25 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
             };
         }
 
-        var consumables = inventoryJsonObj.consumables.map(parseToItemEntry);
-        var costumes = inventoryJsonObj.costumes.map(parseToItemEntry);
-        var equipments = inventoryJsonObj.equipments.map(parseToItemEntry);
-        var materials = inventoryJsonObj.materials.map(parseToItemEntry);
+        var consumables = inventoryJsonObj.consumables.map(parseToItem);
+        var costumes = inventoryJsonObj.costumes.map(parseToItem);
+        var equipments = inventoryJsonObj.equipments.map(parseToItem);
+        var materials = inventoryJsonObj.materials.map(parseToItem);
         return {
             items: consumables.concat(costumes).concat(equipments).concat(materials),
         };
     }
 
-    function parseToItemEntry(itemJsonObj: any): ItemEntry {
+    function parseToItem(itemJsonObj: any): Item {
         return {
-            item: {
-                elementalType: itemJsonObj.elementalType,
-                grade: itemJsonObj.grade,
-                id: itemJsonObj.itemSheetId,
-                itemId: itemJsonObj.nonFungibleId,
-                itemSubType: itemJsonObj.itemSubType,
-                itemType: itemJsonObj.itemType,
-                requiredBlockIndex: itemJsonObj.requiredBlockIndex,
-            },
+            itemSheetId: itemJsonObj.itemSheetId,
+            grade: itemJsonObj.grade,
+            itemType: itemJsonObj.itemType,
+            itemSubType: itemJsonObj.itemSubType,
+            elementalType: itemJsonObj.elementalType,
             count: itemJsonObj.count,
+            requiredBlockIndex: itemJsonObj.requiredBlockIndex,
+            nonFungibleId: itemJsonObj.nonFungibleId,
         };
     }
 
