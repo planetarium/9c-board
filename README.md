@@ -47,7 +47,7 @@ And since this information is tied to the `NETWORK_CONF_MAP` value you define in
 
 `https://planetarium-9c-board.netlify.app/[NETWORK]/tablesheet/[TABLESHEET_NAME]`
 
-For instance, you can see current `StakeRegularRewardSheet` of `odin`-`mainnet` network in `https://planetarium-9c-board.netlify.app/odin-main/tablesheet/StakeRegularRewardSheet`.
+For instance, you can see current `StakeRegularRewardSheet` of `odin`-`main` network in `https://planetarium-9c-board.netlify.app/odin-main/tablesheet/StakeRegularRewardSheet`.
 
 <img width="880" alt="image" src="https://user-images.githubusercontent.com/26626194/224272344-622e9d80-a74c-48bf-82b6-62f1e8dde3f1.png">
 
