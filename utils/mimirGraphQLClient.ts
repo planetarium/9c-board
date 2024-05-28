@@ -40,6 +40,57 @@ export function getSdk(networkType: NetworkType, nodeType: NodeType) {
   const client = getClient(nodeType);
   return {
     client,
+    inventory: (avatarAddress: string) => {
+      const query = `
+        query {
+            inventory(planetName: ${planetName}, avatarAddress: "${avatarAddress}") {
+                consumables {
+                    itemSheetId
+                    grade
+                    itemType
+                    itemSubType
+                    elementalType
+                    count
+                    requiredBlockIndex
+                    nonFungibleId
+                }
+                costumes {
+                    itemSheetId
+                    grade
+                    itemType
+                    itemSubType
+                    elementalType
+                    count
+                    requiredBlockIndex
+                    nonFungibleId
+                }
+                equipments {
+                    itemSheetId
+                    grade
+                    itemType
+                    itemSubType
+                    elementalType
+                    count
+                    requiredBlockIndex
+                    nonFungibleId
+                }
+                materials {
+                    itemSheetId
+                    grade
+                    itemType
+                    itemSubType
+                    elementalType
+                    count
+                    requiredBlockIndex
+                    nonFungibleId
+                }
+            }
+        }
+      `;
+      return client
+        .request(query, undefined, { accept: "application/json" })
+        .then((data) => data.inventory);
+    },
     sheetNames: () => {
       const query = `
         query {
