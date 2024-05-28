@@ -40,20 +40,24 @@ export function getSdk(networkType: NetworkType, nodeType: NodeType) {
   const client = getClient(nodeType);
   return {
     client,
-    sheetNames: async () => {
-      const query = `query {
-                    sheetNames(planetName: ${planetName})
-                }`;
+    sheetNames: () => {
+      const query = `
+        query {
+            sheetNames(planetName: ${planetName})
+        }
+      `;
       return client
         .request(query, undefined, { accept: "application/json" })
         .then((data) => data.sheetNames);
     },
-    sheet: async (sheetName: string) => {
-      const query = `query {
-                    sheet(planetName: ${planetName}, sheetName: "${sheetName}") {
-                        csv
-                    }
-                }`;
+    sheet: (sheetName: string) => {
+      const query = `
+        query {
+            sheet(planetName: ${planetName}, sheetName: "${sheetName}") {
+                csv
+            }
+        }
+      `;
       return client
         .request(query, undefined, { accept: "application/json" })
         .then((data) => data.sheet.csv);
