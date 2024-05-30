@@ -42,54 +42,63 @@ export function getSdk(networkType: NetworkType, nodeType: NodeType) {
     client,
     inventory: (avatarAddress: string) => {
       const query = `
-        query {
-            inventory(planetName: ${planetName}, avatarAddress: "${avatarAddress}") {
-                consumables {
-                    itemSheetId
-                    grade
-                    itemType
-                    itemSubType
-                    elementalType
-                    count
-                    requiredBlockIndex
-                    nonFungibleId
-                }
-                costumes {
-                    itemSheetId
-                    grade
-                    itemType
-                    itemSubType
-                    elementalType
-                    count
-                    requiredBlockIndex
-                    nonFungibleId
-                }
-                equipments {
-                    itemSheetId
-                    grade
-                    itemType
-                    itemSubType
-                    elementalType
-                    count
-                    requiredBlockIndex
-                    nonFungibleId
-                }
-                materials {
-                    itemSheetId
-                    grade
-                    itemType
-                    itemSubType
-                    elementalType
-                    count
-                    requiredBlockIndex
-                    nonFungibleId
-                }
+        query
+        {
+          avatar(planetName: ${planetName}, address: "${avatarAddress}")
+          {
+            inventory
+            {
+              consumables
+              {
+                itemSheetId
+                grade
+                itemType
+                itemSubType
+                elementalType
+                count
+                requiredBlockIndex
+                nonFungibleId
+              }
+              costumes
+              {
+                itemSheetId
+                grade
+                itemType
+                itemSubType
+                elementalType
+                count
+                requiredBlockIndex
+                nonFungibleId
+              }
+              equipments
+              {
+                itemSheetId
+                grade
+                itemType
+                itemSubType
+                elementalType
+                count
+                requiredBlockIndex
+                nonFungibleId
+              }
+              materials
+              {
+                itemSheetId
+                grade
+                itemType
+                itemSubType
+                elementalType
+                count
+                requiredBlockIndex
+                nonFungibleId
+              }
             }
+          }
         }
       `;
       return client
         .request(query, undefined, { accept: "application/json" })
-        .then((data) => data.inventory);
+        .then((data) => data.avatar?.inventory);
     },
     sheetNames: () => {
       const query = `
