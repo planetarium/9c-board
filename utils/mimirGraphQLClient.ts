@@ -40,6 +40,26 @@ export function getSdk(networkType: NetworkType, nodeType: NodeType) {
   const client = getClient(nodeType);
   return {
     client,
+    agent: (agentAddress: string) => {
+      const query = `
+        query
+        {
+          agent(planetName: ${planetName}, address: "${agentAddress}")
+          {
+            avatars
+            {
+              address
+              name
+              level
+              actionPoint
+            }
+          }
+        }
+      `;
+      return client
+        .request(query, undefined, { accept: "application/json" })
+        .then((data) => data.agent);
+    },
     avatar: (avatarAddress: string) => {
       const query = `
         query
