@@ -2,9 +2,12 @@ import type { NextPage, GetServerSideProps } from "next";
 import { getBalance } from "../../../apiClient";
 import { getNetworkType, getNodeType } from "../../../utils/network";
 import { getSdk } from "../../../utils/mimirGraphQLClient";
+import { NetworkType, NodeType } from "../../../constants/network";
 
-const CURRENCY_TICKERS = [
+const AGENT_CURRENCY_TICKERS = [
     "CRYSTAL",
+];
+const AVATAR_CURRENCY_TICKERS = [
     "RUNESTONE_FENRIR1",
     "RUNESTONE_FENRIR2",
     "RUNESTONE_FENRIR3",
@@ -19,7 +22,7 @@ const CURRENCY_TICKERS = [
     "SOULSTONE_1002",
     "SOULSTONE_1003",
     "SOULSTONE_1004",
-] as const;
+];
 
 interface FAV {
     ticker: string;
@@ -128,24 +131,16 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
     const avatarJsonObj = await sdk.avatar(address);
     const inventoryJsonObj = avatarJsonObj.inventory;
     const inventoryObj = parseToInventory(inventoryJsonObj);
-    const balanceJsonObjs = avatarJsonObj.agentAddress === null
-        ? []
-        : await Promise.all(
-            CURRENCY_TICKERS.map(
-                (currencyTicker, index) => getBalance(
-                    nodeType,
-                    networkType,
-                    index <= 0 ? avatarJsonObj.agentAddress : address,
-                    currencyTicker
-                )
-            )
-        );
-    const balanceObjs = balanceJsonObjs.map((resp, index) => {
-        return {
-            ticker: CURRENCY_TICKERS[index],
-            amount: resp === null ? 0 : parseFloat(resp.quantity),
-        };
-    });
+    const agentBalanceJsonObjs = await getBalances(
+        nodeType,
+        networkType,
+        AGENT_CURRENCY_TICKERS,
+        avatarJsonObj.agentAddress);
+    const avatarBalanceJsonObjs = await getBalances(
+        nodeType,
+        networkType,
+        AVATAR_CURRENCY_TICKERS,
+        address);
 
     function parseToInventory(inventoryJsonObj: any | null): Inventory {
         if (inventoryJsonObj === null) {
@@ -176,6 +171,34 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
         };
     }
 
+    async function getBalances(
+        nodeType: NodeType,
+        networkType: NetworkType,
+        tickers: string[],
+        address: any | null
+    ): Promise<FAV[]> {
+        if (address === null) {
+            return [];
+        }
+
+        const balanceJsonObjects = await Promise.all(
+            tickers.map(
+                ticker => getBalance(
+                    nodeType,
+                    networkType,
+                    address,
+                    ticker
+                )
+            )
+        );
+        return balanceJsonObjects.map((resp, index) => {
+            return {
+                ticker: tickers[index],
+                amount: resp === null ? 0 : parseFloat(resp.quantity),
+            };
+        });
+    }
+
     return {
         props: {
             avatar: {
@@ -183,7 +206,7 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
                 name: avatarJsonObj.name,
                 actionPoint: avatarJsonObj.actionPoint,
                 level: avatarJsonObj.level,
-                favs: balanceObjs,
+                favs: agentBalanceJsonObjs.concat(avatarBalanceJsonObjs),
                 inventory: inventoryObj,
             },
         },
