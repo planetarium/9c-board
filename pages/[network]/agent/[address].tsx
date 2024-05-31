@@ -1,8 +1,8 @@
 import type { NextPage, GetServerSideProps } from "next"
-import { networkToSDK } from "../../../sdk";
+import { getSdk } from "../../../utils/mimirGraphQLClient";
+import { getNetworkType, getNodeType } from "../../../utils/network";
 
 interface Agent {
-    gold: string;
     avatars: Avatar[];
 }
 
@@ -14,11 +14,10 @@ interface Avatar {
 }
 
 interface AgentPageProps {
-    agent: Agent | null,
-    blockIndex: number,
+    agent: Agent | null
 }
 
-const AgentPage: NextPage<AgentPageProps> = ({ agent, blockIndex }) => {
+const AgentPage: NextPage<AgentPageProps> = ({ agent }) => {
     if (agent === null) {
         return (
             <h1>There is no such agent.</h1>
@@ -32,32 +31,30 @@ const AgentPage: NextPage<AgentPageProps> = ({ agent, blockIndex }) => {
                 padding: "1rem",
                 borderColor: "black",
                 border: "solid 1px"
-            }}><a href={`../avatar/${avatar.address}${blockIndex === -1 ? "" : `?blockIndex=${blockIndex}`}`}>Lv.{avatar.level} {avatar.name} ({avatar.actionPoint}/120)</a></p>)}
+            }}><a href={`../avatar/${avatar.address}`}>Lv.{avatar.level} {avatar.name} ({avatar.actionPoint}/120)</a></p>)}
         </div>
     )
 }
 
 export const getServerSideProps: GetServerSideProps<AgentPageProps> = async (context) => {
     const network = context.query.network;
-    if (typeof(network) !== "string") {
+    if (typeof (network) !== "string") {
         throw new Error("Network parameter is not a string.");
     }
 
     const address = context.query.address;
-    if (typeof(address) !== "string") {
+    if (typeof (address) !== "string") {
         throw new Error("Address parameter is not a string.");
     }
 
-    const sdk = networkToSDK(network);
-
-    const blockIndexString = context.query.blockIndex;
-    const blockIndex = blockIndexString === undefined ? -1 : Number(blockIndexString);
-    const agent = (await sdk.Agent({ address })).stateQuery.agent;
-    if (agent === null || agent === undefined) {
+    const nodeType = getNodeType(network);
+    const networkType = getNetworkType(network);
+    const sdk = getSdk(networkType, nodeType);
+    const agentJsonObj = await sdk.agent(address);
+    if (agentJsonObj === null || agentJsonObj === undefined) {
         return {
             props: {
                 agent: null,
-                blockIndex,
             }
         }
     }
@@ -65,10 +62,8 @@ export const getServerSideProps: GetServerSideProps<AgentPageProps> = async (con
     return {
         props: {
             agent: {
-                gold: agent.gold,
-                avatars: agent.avatarStates!
+                avatars: agentJsonObj.avatars
             },
-            blockIndex
         }
     }
 }
