@@ -17,6 +17,31 @@ interface AgentPageProps {
     agent: Agent | null
 }
 
+function Avatar(avatar: Avatar) {
+    const style = {
+        margin: "2rem",
+        padding: "1rem",
+        borderColor: "black",
+        border: "solid 1px",
+    };
+
+    if (avatar.name === null || avatar.name === undefined) {
+        return (
+            <p key={avatar.address} style={style}>
+                <a href={`../avatar/${avatar.address}`}>No found ({avatar.address})</a>
+            </p>
+        );
+    }
+
+    return (
+        <p key={avatar.address} style={style}>
+            <a href={`../avatar/${avatar.address}`}>
+                Lv.{avatar.level} {avatar.name} ({avatar.actionPoint}/120) ({avatar.address})
+            </a>
+        </p>
+    );
+}
+
 const AgentPage: NextPage<AgentPageProps> = ({ agent }) => {
     if (agent === null) {
         return (
@@ -31,21 +56,9 @@ const AgentPage: NextPage<AgentPageProps> = ({ agent }) => {
         border: "solid 1px"
     };
 
-    function handleAvatar(avatar: Avatar) {
-        if (avatar.name === null || avatar.name === undefined) {
-            return (
-                <p key={avatar.address} style={style}><a href={`../avatar/${avatar.address}`}>No found ({avatar.address})</a></p>
-            )
-        }
-
-        return (
-            <p key={avatar.address} style={style}><a href={`../avatar/${avatar.address}`}>Lv.{avatar.level} {avatar.name} ({avatar.actionPoint}/120) ({avatar.address})</a></p>
-        )
-    }
-
     return (
         <div>
-            {agent.avatars.map(handleAvatar)}
+            {agent.avatars.map(avatar => <Avatar key={avatar.address} {...avatar} />)}
         </div>
     )
 }
