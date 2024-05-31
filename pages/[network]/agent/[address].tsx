@@ -24,14 +24,28 @@ const AgentPage: NextPage<AgentPageProps> = ({ agent }) => {
         )
     }
 
+    const style = {
+        margin: "2rem",
+        padding: "1rem",
+        borderColor: "black",
+        border: "solid 1px"
+    };
+
+    function handleAvatar(avatar: Avatar) {
+        if (avatar.name === null || avatar.name === undefined) {
+            return (
+                <p key={avatar.address} style={style}><a href={`../avatar/${avatar.address}`}>No found ({avatar.address})</a></p>
+            )
+        }
+
+        return (
+            <p key={avatar.address} style={style}><a href={`../avatar/${avatar.address}`}>Lv.{avatar.level} {avatar.name} ({avatar.actionPoint}/120) ({avatar.address})</a></p>
+        )
+    }
+
     return (
         <div>
-            {agent.avatars.map(avatar => <p key={avatar.address} style={{
-                margin: "2rem",
-                padding: "1rem",
-                borderColor: "black",
-                border: "solid 1px"
-            }}><a href={`../avatar/${avatar.address}`}>Lv.{avatar.level} {avatar.name} ({avatar.actionPoint}/120)</a></p>)}
+            {agent.avatars.map(handleAvatar)}
         </div>
     )
 }
