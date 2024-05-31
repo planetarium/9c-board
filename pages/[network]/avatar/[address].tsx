@@ -27,6 +27,7 @@ interface FAV {
 }
 
 interface Avatar {
+    address: string;
     name: string;
     level: number;
     actionPoint: number;
@@ -56,6 +57,10 @@ interface AvatarPageProps {
 const AvatarPage: NextPage<AvatarPageProps> = ({ avatar }) => {
     if (avatar === null) {
         return <h1>There is no avatar.</h1>;
+    }
+
+    if (avatar.name === null || avatar.name === undefined) {
+        return <h1>Cannot find avatar. ({avatar.address})</h1>;
     }
 
     const aggregatedItems = new Map<number, number>();
@@ -174,6 +179,7 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
     return {
         props: {
             avatar: {
+                address: avatarJsonObj.address,
                 name: avatarJsonObj.name,
                 actionPoint: avatarJsonObj.actionPoint,
                 level: avatarJsonObj.level,
