@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next";
-import { getBalance, getAvatar } from "../../../apiClient";
+import { getBalance } from "../../../apiClient";
 import { getNetworkType, getNodeType } from "../../../utils/network";
 import { getSdk } from "../../../utils/mimirGraphQLClient";
 
@@ -119,21 +119,22 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
 
     const nodeType = getNodeType(network);
     const networkType = getNetworkType(network);
-    const avatarJsonObj = await getAvatar(nodeType, networkType, address);
-
     const sdk = getSdk(networkType, nodeType);
-    const inventoryJsonObj = await sdk.inventory(address);
+    const avatarJsonObj = await sdk.avatar(address);
+    const inventoryJsonObj = avatarJsonObj.inventory;
     const inventoryObj = parseToInventory(inventoryJsonObj);
-    const balanceJsonObjs = await Promise.all(
-        CURRENCY_TICKERS.map(
-            (currencyTicker, index) => getBalance(
-                nodeType,
-                networkType,
-                index <= 0 ? avatarJsonObj.agentAddress : address,
-                currencyTicker
+    const balanceJsonObjs = avatarJsonObj.agentAddress === null
+        ? []
+        : await Promise.all(
+            CURRENCY_TICKERS.map(
+                (currencyTicker, index) => getBalance(
+                    nodeType,
+                    networkType,
+                    index <= 0 ? avatarJsonObj.agentAddress : address,
+                    currencyTicker
+                )
             )
-        )
-    );
+        );
     const balanceObjs = balanceJsonObjs.map((resp, index) => {
         return {
             ticker: CURRENCY_TICKERS[index],
@@ -173,7 +174,7 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
     return {
         props: {
             avatar: {
-                name: avatarJsonObj.avatarName,
+                name: avatarJsonObj.name,
                 actionPoint: avatarJsonObj.actionPoint,
                 level: avatarJsonObj.level,
                 favs: balanceObjs,
