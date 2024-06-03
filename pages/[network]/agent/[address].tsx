@@ -28,7 +28,7 @@ function Avatar(avatar: Avatar) {
     if (avatar.name === null || avatar.name === undefined) {
         return (
             <p key={avatar.address} style={style}>
-                <a href={`../avatar/${avatar.address}`}>No found ({avatar.address})</a>
+                <a href={`../avatar/${avatar.address}`}>Not found ({avatar.address})</a>
             </p>
         );
     }
