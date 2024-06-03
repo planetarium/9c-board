@@ -6,7 +6,7 @@ import { NetworkType, NodeType } from "../../../constants/network";
 
 const AGENT_CURRENCY_TICKERS = [
     "CRYSTAL",
-];
+] as const;
 const AVATAR_CURRENCY_TICKERS = [
     "RUNESTONE_FENRIR1",
     "RUNESTONE_FENRIR2",
@@ -22,7 +22,7 @@ const AVATAR_CURRENCY_TICKERS = [
     "SOULSTONE_1002",
     "SOULSTONE_1003",
     "SOULSTONE_1004",
-];
+] as const;
 
 interface FAV {
     ticker: string;
@@ -174,7 +174,7 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
     async function getBalances(
         nodeType: NodeType,
         networkType: NetworkType,
-        tickers: string[],
+        tickers: readonly string[],
         address: any | null
     ): Promise<FAV[]> {
         if (address === null) {
