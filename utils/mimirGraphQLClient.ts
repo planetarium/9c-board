@@ -40,12 +40,37 @@ export function getSdk(networkType: NetworkType, nodeType: NodeType) {
   const client = getClient(nodeType);
   return {
     client,
-    inventory: (avatarAddress: string) => {
+    agent: (agentAddress: string) => {
+      const query = `
+        query
+        {
+          agent(planetName: ${planetName}, address: "${agentAddress}")
+          {
+            avatars
+            {
+              address
+              name
+              level
+              actionPoint
+            }
+          }
+        }
+      `;
+      return client
+        .request(query, undefined, { accept: "application/json" })
+        .then((data) => data.agent);
+    },
+    avatar: (avatarAddress: string) => {
       const query = `
         query
         {
           avatar(planetName: ${planetName}, address: "${avatarAddress}")
           {
+            address
+            agentAddress
+            name
+            level
+            actionPoint
             inventory
             {
               consumables
@@ -98,7 +123,7 @@ export function getSdk(networkType: NetworkType, nodeType: NodeType) {
       `;
       return client
         .request(query, undefined, { accept: "application/json" })
-        .then((data) => data.avatar?.inventory);
+        .then((data) => data.avatar);
     },
     sheetNames: () => {
       const query = `
