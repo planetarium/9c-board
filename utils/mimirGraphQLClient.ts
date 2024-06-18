@@ -1,5 +1,6 @@
 import { GraphQLClient } from "graphql-request";
-import { NetworkType, NodeType } from "../constants/network";
+import { NodeType } from "../constants/network";
+import { getSdk } from "../generated/mimir/graphql-request";
 
 function getUrl(nodeType: NodeType) {
   const map = process.env.MIMIR_GRAPHQL_URL_MAP;
@@ -35,117 +36,6 @@ export function getClient(nodeType: NodeType) {
   return new GraphQLClient(url);
 }
 
-export function getSdk(networkType: NetworkType, nodeType: NodeType) {
-  const planetName = networkType.toUpperCase();
-  const client = getClient(nodeType);
-  return {
-    client,
-    agent: (agentAddress: string) => {
-      const query = `
-        query
-        {
-          agent(planetName: ${planetName}, address: "${agentAddress}")
-          {
-            avatars
-            {
-              address
-              name
-              level
-              actionPoint
-            }
-          }
-        }
-      `;
-      return client
-        .request(query, undefined, { accept: "application/json" })
-        .then((data) => data.agent);
-    },
-    avatar: (avatarAddress: string) => {
-      const query = `
-        query
-        {
-          avatar(planetName: ${planetName}, address: "${avatarAddress}")
-          {
-            address
-            agentAddress
-            name
-            level
-            actionPoint
-            inventory
-            {
-              consumables
-              {
-                itemSheetId
-                grade
-                itemType
-                itemSubType
-                elementalType
-                count
-                requiredBlockIndex
-                nonFungibleId
-              }
-              costumes
-              {
-                itemSheetId
-                grade
-                itemType
-                itemSubType
-                elementalType
-                count
-                requiredBlockIndex
-                nonFungibleId
-              }
-              equipments
-              {
-                itemSheetId
-                grade
-                itemType
-                itemSubType
-                elementalType
-                count
-                requiredBlockIndex
-                nonFungibleId
-              }
-              materials
-              {
-                itemSheetId
-                grade
-                itemType
-                itemSubType
-                elementalType
-                count
-                requiredBlockIndex
-                nonFungibleId
-              }
-            }
-          }
-        }
-      `;
-      return client
-        .request(query, undefined, { accept: "application/json" })
-        .then((data) => data.avatar);
-    },
-    sheetNames: () => {
-      const query = `
-        query {
-            sheetNames(planetName: ${planetName})
-        }
-      `;
-      return client
-        .request(query, undefined, { accept: "application/json" })
-        .then((data) => data.sheetNames);
-    },
-    sheet: (sheetName: string) => {
-      const query = `
-        query {
-            sheet(planetName: ${planetName}, sheetName: "${sheetName}") {
-                csv
-            }
-        }
-      `;
-      return client
-        .request(query, undefined, { accept: "application/json" })
-        .then((data) => data.sheet.csv);
-    },
-  };
+export function getGraphQLSDK(nodeType: NodeType) {
+  return getSdk(getClient(nodeType));
 }

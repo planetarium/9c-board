@@ -1,6 +1,6 @@
 import type { NextPage, GetServerSideProps } from "next"
-import { getSdk } from "../../../utils/mimirGraphQLClient";
-import { getNetworkType, getNodeType } from "../../../utils/network";
+import { getPlanetName, getNodeType } from "../../../utils/network";
+import { getGraphQLSDK } from "../../../utils/mimirGraphQLClient";
 
 interface Agent {
     avatars: Avatar[];
@@ -75,9 +75,9 @@ export const getServerSideProps: GetServerSideProps<AgentPageProps> = async (con
     }
 
     const nodeType = getNodeType(network);
-    const networkType = getNetworkType(network);
-    const sdk = getSdk(networkType, nodeType);
-    const agentJsonObj = await sdk.agent(address);
+    const planetName = getPlanetName(network);
+    const sdk = getGraphQLSDK(nodeType);
+    const agentJsonObj = (await sdk.GetAgent({ agentAddress: address, planetName, })).agent;
     if (agentJsonObj === null || agentJsonObj === undefined) {
         return {
             props: {
@@ -89,7 +89,7 @@ export const getServerSideProps: GetServerSideProps<AgentPageProps> = async (con
     return {
         props: {
             agent: {
-                avatars: agentJsonObj.avatars
+                avatars: agentJsonObj.avatars as Avatar[],
             },
         }
     }
