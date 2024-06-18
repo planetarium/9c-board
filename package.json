@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "codegen": "graphql-codegen"
+    "codegen": "graphql-codegen --config ./graphql/mimir/codegen.yml && graphql-codegen --config ./graphql/headless/codegen.yml"
   },
   "dependencies": {
     "bencodex": "^0.1.2",
