@@ -32,7 +32,7 @@ function getUrl(nodeType: NodeType) {
 
 export function getClient(nodeType: NodeType) {
   const url = getUrl(nodeType);
-  return new GraphQLClient(url);
+  return new GraphQLClient(url, { errorPolicy: "ignore" });
 }
 
 export function getSdk(networkType: NetworkType, nodeType: NodeType) {
