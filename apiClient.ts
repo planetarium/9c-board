@@ -1,6 +1,4 @@
-import { GraphQLClient } from "graphql-request";
 import { NetworkType, NodeType } from "./constants/network";
-import { PlanetName, getSdk } from "./generated/mimir/graphql-request";
 
 export const BASE_URL = "https://mimir.nine-chronicles.dev/";
 export const INTERNAL_BASE_URL = "https://mimir-internal.nine-chronicles.dev/";
@@ -13,16 +11,6 @@ interface FetchOptions<TBody = undefined> {
   method?: "GET" | "POST";
   body?: TBody;
   headers?: HeadersInit;
-}
-
-function getBaseUrl(nodeType: NodeType) {
-  if (nodeType === NodeType.Main) {
-    return BASE_URL;
-  } else if (nodeType === NodeType.Internal) {
-    return INTERNAL_BASE_URL;
-  }
-
-  throw new TypeError(`Unexpected nodeType: ${nodeType}`);
 }
 
 async function fetchAPI<TResponse, TBody = undefined>(
@@ -40,7 +28,8 @@ async function fetchAPI<TResponse, TBody = undefined>(
     };
 
     const url =
-      getBaseUrl(nodeType) + endpoint;
+      (nodeType === NodeType.Internal ? INTERNAL_BASE_URL : BASE_URL) +
+      endpoint;
 
     const response = await fetch(url, config);
 
@@ -62,28 +51,63 @@ async function fetchAPI<TResponse, TBody = undefined>(
   }
 }
 
+export async function getSheetNames(
+  nodeType: NodeType,
+  networkType: NetworkType
+): Promise<string[]> {
+  return await fetchAPI<string[]>(nodeType, `${networkType}/sheets/names`);
+}
+
+export async function getSheet(
+  nodeType: NodeType,
+  networkType: NetworkType,
+  name: string
+): Promise<string> {
+  return await fetchAPI<string>(nodeType, `${networkType}/sheets/${name}`, {
+    headers: { accept: "text/csv" },
+  });
+}
+
 export async function getBalance(
   nodeType: NodeType,
-  networkType: PlanetName,
+  networkType: NetworkType,
   address: string,
   currencyTicker: string,
 ): Promise<any | null> {
   try {
     return await fetchAPI<any>(
       nodeType,
-      `${networkType.toLowerCase()}/balances/${address}/${currencyTicker}`
+      `${networkType}/balances/${address}/${currencyTicker}`
     );
   } catch (error) {
     return null;
   }
 }
 
-// GraphQL
-function getGraphQLEndpoint(nodeType: NodeType) {
-  return `${getBaseUrl(nodeType)}/graphql`;
+export async function getAvatar(
+  nodeType: NodeType,
+  networkType: NetworkType,
+  address: string
+): Promise<any | null> {
+  try {
+    return await fetchAPI<any>(nodeType, `${networkType}/avatars/${address}`);
+  }
+  catch (error) {
+    return null;
+  }
 }
 
-export function getGraphQLSDK(nodeType: NodeType) {
-  const client = new GraphQLClient(getGraphQLEndpoint(nodeType));
-  return getSdk(client);
+export async function getAvatarInventory(
+  nodeType: NodeType,
+  networkType: NetworkType,
+  avatarAddress: string
+): Promise<any | null> {
+  try {
+    return await fetchAPI<any>(
+      nodeType,
+      `${networkType}/avatars/${avatarAddress}/inventory`
+    );
+  } catch (error) {
+    return null;
+  }
 }

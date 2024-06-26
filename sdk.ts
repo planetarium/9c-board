@@ -1,5 +1,5 @@
 import { GetServerSidePropsContext } from "next/types";
-import { getSdk } from "./generated/headless/graphql-request";
+import { getSdk } from "./generated/graphql-request";
 import { GraphQLClient } from "graphql-request"
 
 function parseNetworkConfMap(confMapString: string): Map<string, ReturnType<typeof getSdk>> {
