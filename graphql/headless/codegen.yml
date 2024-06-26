@@ -1,9 +1,0 @@
-overwrite: true
-schema: ./graphql/headless/schema.graphql
-documents: ./graphql/headless/api.graphql
-generates:
-  generated/headless/graphql-request.ts:
-    plugins:
-    - typescript
-    - typescript-operations
-    - typescript-graphql-request

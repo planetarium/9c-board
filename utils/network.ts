@@ -1,11 +1,10 @@
-import { NodeType } from "../constants/network";
-import { PlanetName } from "../generated/mimir/graphql-request";
+import { NetworkType, NodeType } from "../constants/network";
 
-export function getPlanetName(network: string): PlanetName {
-  if (network.toLowerCase().includes(PlanetName.Odin.toLowerCase())) {
-    return PlanetName.Odin;
-  } else if (network.toLowerCase().includes(PlanetName.Heimdall.toLowerCase())) {
-    return PlanetName.Heimdall;
+export function getNetworkType(network: string): NetworkType {
+  if (network.includes(NetworkType.Odin)) {
+    return NetworkType.Odin;
+  } else if (network.includes(NetworkType.Heimdall)) {
+    return NetworkType.Heimdall;
   } else {
     throw new Error();
   }
@@ -17,6 +16,6 @@ export function getNodeType(node: string): NodeType {
   } else if (node.includes(NodeType.Main)) {
     return NodeType.Main;
   } else {
-    throw new Error(node);
+    throw new Error();
   }
 }
