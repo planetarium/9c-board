@@ -7,12 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "codegen": "graphql-codegen"
+    "codegen": "graphql-codegen --config ./graphql/mimir/codegen.yml && graphql-codegen --config ./graphql/headless/codegen.yml"
   },
   "dependencies": {
     "bencodex": "^0.1.2",
     "graphql": "^16.8.1",
-    "graphql-request": "^4.3.0",
+    "graphql-request": "^6.0.0",
     "graphql-tag": "^2.12.6",
     "next": "^14.2.3",
     "react": "18.2.0",
@@ -20,10 +20,10 @@
     "react-json-tree": "^0.18.0"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^2.6.2",
-    "@graphql-codegen/typescript": "^2.5.1",
-    "@graphql-codegen/typescript-graphql-request": "^4.4.10",
-    "@graphql-codegen/typescript-operations": "^2.4.2",
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/typescript": "^4.0.0",
+    "@graphql-codegen/typescript-graphql-request": "^6.2.0",
+    "@graphql-codegen/typescript-operations": "^4.2.0",
     "@types/node": "20",
     "@types/react": "18.0.14",
     "@types/react-dom": "18.0.5",
@@ -32,7 +32,7 @@
     "eslint-config-next": "^14.2.3",
     "postcss": "^8.4.14",
     "tailwindcss": "^3.1.3",
-    "typescript": "4.7.4"
+    "typescript": "^5.4.5"
   },
   "packageManager": "yarn@4.1.1"
 }

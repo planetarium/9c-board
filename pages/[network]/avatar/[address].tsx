@@ -1,8 +1,9 @@
 import type { NextPage, GetServerSideProps } from "next";
 import { getBalance } from "../../../apiClient";
-import { getNetworkType, getNodeType } from "../../../utils/network";
-import { getSdk } from "../../../utils/mimirGraphQLClient";
-import { NetworkType, NodeType } from "../../../constants/network";
+import { getGraphQLSDK } from "../../../utils/mimirGraphQLClient";
+import { getPlanetName, getNodeType } from "../../../utils/network";
+import { NodeType } from "../../../constants/network";
+import { PlanetName } from "../../../generated/mimir/graphql-request";
 
 const AGENT_CURRENCY_TICKERS = [
     "CRYSTAL",
@@ -126,9 +127,20 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
     }
 
     const nodeType = getNodeType(network);
-    const networkType = getNetworkType(network);
-    const sdk = getSdk(networkType, nodeType);
-    const avatarJsonObj = await sdk.avatar(address);
+    const networkType = getPlanetName(network);
+    const avatarJsonObj = (await getGraphQLSDK(nodeType).GetAvatar({
+        planetName: networkType,
+        avatarAddress: address,
+    })).avatar;
+
+    if (!avatarJsonObj) {
+        return {
+            props: {
+                avatar: null,
+            }
+        }
+    }
+
     const inventoryJsonObj = avatarJsonObj.inventory;
     const inventoryObj = parseToInventory(inventoryJsonObj);
     const agentBalanceJsonObjs = await getBalances(
@@ -173,7 +185,7 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
 
     async function getBalances(
         nodeType: NodeType,
-        networkType: NetworkType,
+        networkType: PlanetName,
         tickers: readonly string[],
         address: any | null
     ): Promise<FAV[]> {
@@ -203,9 +215,9 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
         props: {
             avatar: {
                 address: avatarJsonObj.address,
-                name: avatarJsonObj.name,
-                actionPoint: avatarJsonObj.actionPoint,
-                level: avatarJsonObj.level,
+                name: avatarJsonObj.name!,
+                actionPoint: avatarJsonObj.actionPoint!,
+                level: avatarJsonObj.level!,
                 favs: agentBalanceJsonObjs.concat(avatarBalanceJsonObjs),
                 inventory: inventoryObj,
             },

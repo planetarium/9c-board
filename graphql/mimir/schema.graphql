@@ -1,0 +1,254 @@
+scalar Address
+
+enum ElementalType {
+  NORMAL
+  FIRE
+  WATER
+  LAND
+  WIND
+}
+
+interface IFungibleItem implements IItem {
+  """
+  The fungible ID of the item.
+  """
+  fungibleId: HashDigestSHA256!
+
+  """
+  The ItemType of the item.
+  """
+  itemType: ItemType!
+
+  """
+  The ItemSubType of the item.
+  """
+  itemSubType: ItemSubType!
+}
+
+scalar Guid
+
+scalar HashDigestSHA256
+
+enum ItemSubType {
+  FOOD
+  FULL_COSTUME
+  HAIR_COSTUME
+  EAR_COSTUME
+  EYE_COSTUME
+  TAIL_COSTUME
+  WEAPON
+  ARMOR
+  BELT
+  NECKLACE
+  RING
+  EQUIPMENT_MATERIAL
+  FOOD_MATERIAL
+  MONSTER_PART
+  NORMAL_MATERIAL
+  HOURGLASS
+  AP_STONE
+  CHEST
+    @deprecated(
+      reason: "ItemSubType.Chest has never been used outside the MaterialItemSheet. And we won't use it in the future until we have a specific reason."
+    )
+  TITLE
+  AURA
+}
+
+interface IItem {
+  """
+  The ItemType of the item.
+  """
+  itemType: ItemType!
+
+  """
+  The ItemSubType of the item.
+  """
+  itemSubType: ItemSubType!
+}
+
+enum ItemType {
+  CONSUMABLE
+  COSTUME
+  EQUIPMENT
+  MATERIAL
+}
+
+interface INonFungibleItem implements IItem {
+  """
+  The non-fungible ID of the item.
+  """
+  nonFungibleId: Guid!
+  requiredBlockIndex: Long!
+
+  """
+  The ItemType of the item.
+  """
+  itemType: ItemType!
+
+  """
+  The ItemSubType of the item.
+  """
+  itemSubType: ItemSubType!
+}
+
+enum PlanetName {
+  ODIN
+  HEIMDALL
+}
+
+scalar SheetNameType
+
+interface ITradableItem implements IItem {
+  tradableId: UUID!
+  requiredBlockIndex: Long!
+
+  """
+  The ItemType of the item.
+  """
+  itemType: ItemType!
+
+  """
+  The ItemSubType of the item.
+  """
+  itemSubType: ItemSubType!
+}
+
+type AgentObject {
+  version: Int
+  address: Address!
+  avatarAddresses: [Address!]!
+  monsterCollectionRound: Int
+  avatar(index: Int!): AvatarObject
+  avatars: [AvatarObject!]!
+}
+
+type AvatarObject {
+  address: Address!
+  agentAddress: Address
+  index: Int
+  name: String
+  level: Int
+  inventory: InventoryObject
+  actionPoint: Int
+  runes: [RuneObject!]!
+  collection: [CollectionElementObject!]!
+}
+
+type CollectionElementObject {
+  collectionSheetId: Int!
+}
+
+type InventoryObject {
+  """
+  The consumables in the inventory.
+  """
+  consumables: [ItemObject!]!
+
+  """
+  The costumes in the inventory.
+  """
+  costumes: [ItemObject!]!
+
+  """
+  The equipments in the inventory.
+  """
+  equipments: [ItemObject!]!
+
+  """
+  The materials in the inventory.
+  """
+  materials: [ItemObject!]!
+}
+
+type ItemObject {
+  """
+  The ItemSheet ID of the item.
+  """
+  itemSheetId: Int!
+
+  """
+  The grade of the item.
+  """
+  grade: Int!
+
+  """
+  The ItemType of the item.
+  """
+  itemType: ItemType!
+
+  """
+  The ItemSubType of the item.
+  """
+  itemSubType: ItemSubType!
+
+  """
+  The ElementalType of the item.
+  """
+  elementalType: ElementalType!
+
+  """
+  The count of the item.
+  """
+  count: Int!
+
+  """
+  The level of the item.
+  """
+  level: Int
+
+  """
+  The required block index of the item.
+  """
+  requiredBlockIndex: Int
+
+  """
+  The Fungible ID of the item.
+  """
+  fungibleId: HashDigestSHA256
+
+  """
+  The Non-Fungible ID of the item.
+  """
+  nonFungibleId: Guid
+
+  """
+  The Tradable ID of the item.
+  """
+  tradableId: Guid
+}
+
+type Query {
+  agent(planetName: PlanetName!, address: Address!): AgentObject
+  avatar(planetName: PlanetName!, address: Address!): AvatarObject
+  sheetNames(planetName: PlanetName!): [String!]!
+  sheet(
+    planetName: PlanetName!
+    sheetName: SheetNameType!
+    encodeAsBase64: Boolean = false
+  ): SheetObject!
+}
+
+type RuneObject {
+  runeSheetId: Int!
+  level: Int!
+}
+
+type SheetObject {
+  """
+  The name of the sheet.
+  """
+  name: SheetNameType!
+
+  """
+  The CSV content of the sheet.
+  """
+  csv: String
+}
+
+scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
+
+"""
+The `Long` scalar type represents non-fractional signed whole 64-bit numeric values. Long can represent values between -(2^63) and 2^63 - 1.
+"""
+scalar Long
