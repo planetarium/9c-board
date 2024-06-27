@@ -1,8 +1,8 @@
 overwrite: true
-schema: ./schema.graphql
-documents: ./api.graphql
+schema: ./graphql/mimir/schema.graphql
+documents: ./graphql/mimir/api.graphql
 generates:
-  generated/graphql-request.ts:
+  generated/mimir/graphql-request.ts:
     plugins:
     - typescript
     - typescript-operations

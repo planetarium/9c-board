@@ -1,0 +1,88 @@
+query GetAgent($planetName: PlanetName!, $agentAddress: Address!) {
+    agent(planetName: $planetName, address: $agentAddress)
+    {
+        avatars
+        {
+            address
+            name
+            level
+            actionPoint
+        }
+    }
+}
+
+query GetSheetNames($planetName: PlanetName!) {
+    sheetNames(planetName: $planetName)
+}
+
+query GetSheet($planetName: PlanetName!, $sheetName: SheetNameType!) {
+    sheet(planetName: $planetName, sheetName: $sheetName) {
+        csv
+    }
+}
+
+# TODO: GetBalance
+
+query GetAvatar($planetName: PlanetName!, $avatarAddress: Address!) {
+  avatar(planetName: $planetName, address: $avatarAddress) {
+    agentAddress
+    address
+    name
+    actionPoint
+    level
+    inventory {
+      costumes {
+        count
+        elementalType
+        fungibleId
+        grade
+        itemSheetId
+        itemSubType
+        itemType
+        level
+        nonFungibleId
+        requiredBlockIndex
+        tradableId
+      }
+      equipments {
+        count
+        elementalType
+        fungibleId
+        grade
+        itemSheetId
+        itemSubType
+        itemType
+        level
+        nonFungibleId
+        requiredBlockIndex
+        tradableId
+      }
+      materials {
+        count
+        elementalType
+        fungibleId
+        grade
+        itemSheetId
+        itemSubType
+        itemType
+        level
+        nonFungibleId
+        requiredBlockIndex
+        tradableId
+      }
+      consumables {
+        count
+        elementalType
+        fungibleId
+        grade
+        itemSheetId
+        itemSubType
+        itemType
+        level
+        nonFungibleId
+        requiredBlockIndex
+        tradableId
+      }
+    }
+  }
+}
