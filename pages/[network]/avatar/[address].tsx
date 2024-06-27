@@ -161,10 +161,10 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
             };
         }
 
-        var consumables = inventoryJsonObj.consumables.map(parseToItem);
-        var costumes = inventoryJsonObj.costumes.map(parseToItem);
-        var equipments = inventoryJsonObj.equipments.map(parseToItem);
-        var materials = inventoryJsonObj.materials.map(parseToItem);
+        var consumables = inventoryJsonObj.consumables?.map(parseToItem) ?? [];
+        var costumes = inventoryJsonObj.costumes?.map(parseToItem) ?? [];
+        var equipments = inventoryJsonObj.equipments?.map(parseToItem) ?? [];
+        var materials = inventoryJsonObj.materials?.map(parseToItem) ?? [];
         return {
             items: consumables.concat(costumes).concat(equipments).concat(materials),
         };
