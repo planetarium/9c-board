@@ -1,6 +1,6 @@
 import { GraphQLClient } from "graphql-request";
-import { NetworkType, NodeType } from "./constants/network";
-import { PlanetName, getSdk } from "./generated/mimir/graphql-request";
+import { NetworkType, NodeType } from "../constants/network";
+import { PlanetName, getSdk } from "../generated/mimir/graphql-request";
 
 export const BASE_URL = "https://mimir.nine-chronicles.dev/";
 export const INTERNAL_BASE_URL = "https://mimir-internal.nine-chronicles.dev/";

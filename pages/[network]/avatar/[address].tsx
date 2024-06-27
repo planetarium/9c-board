@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next";
-import { getBalance } from "../../../apiClient";
+import { getBalance } from "../../../utils/apiClient";
 import { getGraphQLSDK } from "../../../utils/mimirGraphQLClient";
 import { getPlanetName, getNodeType } from "../../../utils/network";
 import { NodeType } from "../../../constants/network";
