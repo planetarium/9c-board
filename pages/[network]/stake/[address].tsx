@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next"
-import { networkToSDK } from "../../../sdk";
+import { networkToSDK } from "../../../utils/sdk";
 import { BencodexList, decode } from "bencodex";
 import React from "react";
 import * as crypto from "node:crypto";
