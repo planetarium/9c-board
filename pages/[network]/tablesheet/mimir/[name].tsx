@@ -1,6 +1,6 @@
 import type { NextPage, GetServerSideProps } from "next";
-import { getGraphQLSDK } from "../../../utils/mimirGraphQLClient";
-import { getPlanetName, getNodeType } from "../../../utils/network";
+import { getGraphQLSDK } from "../../../../utils/mimirGraphQLClient";
+import { getPlanetName, getNodeType } from "../../../../utils/network";
 
 interface TableSheetPageProps {
   tableSheet: string | null;
