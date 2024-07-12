@@ -28,6 +28,16 @@ const nextConfig = {
         source: "/rank",
         destination: "/9c-main/rank",
         permanent: true,
+      },
+      {
+        source: '/odin-main/:path*',
+        destination: "/odin/:path*",
+        permanent: true
+      },
+      {
+        source: '/heimdall-main/:path*',
+        destination: "/heimdall/:path*",
+        permanent: true
       }
     ]
   }

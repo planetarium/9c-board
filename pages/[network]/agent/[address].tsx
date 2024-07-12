@@ -1,5 +1,4 @@
 import type { NextPage, GetServerSideProps } from "next"
-import { getPlanetName, getNodeType } from "../../../utils/network";
 import { getGraphQLSDK } from "../../../utils/mimirGraphQLClient";
 
 interface Agent {
@@ -74,10 +73,8 @@ export const getServerSideProps: GetServerSideProps<AgentPageProps> = async (con
         throw new Error("Address parameter is not a string.");
     }
 
-    const nodeType = getNodeType(network);
-    const planetName = getPlanetName(network);
-    const sdk = getGraphQLSDK(nodeType);
-    const agentJsonObj = (await sdk.GetAgent({ agentAddress: address, planetName, })).agent;
+    const sdk = getGraphQLSDK(network);
+    const agentJsonObj = (await sdk.GetAgent({ agentAddress: address, })).agent;
     if (agentJsonObj === null || agentJsonObj === undefined) {
         return {
             props: {

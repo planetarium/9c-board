@@ -1,8 +1,8 @@
 import { GraphQLClient } from "graphql-request";
-import { NodeType } from "../constants/network";
+import { Network } from "../constants/network";
 import { getSdk } from "../generated/mimir/graphql-request";
 
-function getUrl(nodeType: NodeType) {
+function getUrl(network: Network) {
   const map = process.env.MIMIR_GRAPHQL_URL_MAP;
   if (map === undefined) {
     throw new Error("MIMIR_GRAPHQL_URL_MAP is not set.");
@@ -23,19 +23,19 @@ function getUrl(nodeType: NodeType) {
     return pair.split("=");
   });
   for (const [key, value] of pairs) {
-    if (key === nodeType) {
+    if (key === network) {
       return value;
     }
   }
 
-  throw new Error("There is no such network: " + nodeType);
+  throw new Error("There is no such network: " + network);
 }
 
-export function getClient(nodeType: NodeType) {
-  const url = getUrl(nodeType);
+export function getClient(network: Network) {
+  const url = getUrl(network);
   return new GraphQLClient(url, { errorPolicy: "ignore" });
 }
 
-export function getGraphQLSDK(nodeType: NodeType) {
-  return getSdk(getClient(nodeType));
+export function getGraphQLSDK(network: Network) {
+  return getSdk(getClient(network));
 }

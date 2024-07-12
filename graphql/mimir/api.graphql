@@ -1,5 +1,5 @@
-query GetAgent($planetName: PlanetName!, $agentAddress: Address!) {
-    agent(planetName: $planetName, address: $agentAddress)
+query GetAgent($agentAddress: Address!) {
+    agent(address: $agentAddress)
     {
         avatars
         {
@@ -11,20 +11,20 @@ query GetAgent($planetName: PlanetName!, $agentAddress: Address!) {
     }
 }
 
-query GetSheetNames($planetName: PlanetName!) {
-    sheetNames(planetName: $planetName)
+query GetSheetNames {
+    sheetNames
 }
 
-query GetSheet($planetName: PlanetName!, $sheetName: SheetNameType!) {
-    sheet(planetName: $planetName, sheetName: $sheetName) {
+query GetSheet($sheetName: SheetNameType!) {
+    sheet(sheetName: $sheetName) {
         csv
     }
 }
 
 # TODO: GetBalance
 
-query GetAvatar($planetName: PlanetName!, $avatarAddress: Address!) {
-  avatar(planetName: $planetName, address: $avatarAddress) {
+query GetAvatar($avatarAddress: Address!) {
+  avatar(address: $avatarAddress) {
     agentAddress
     address
     name

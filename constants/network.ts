@@ -1,9 +1,7 @@
-export enum NetworkType {
-  Odin = "odin",
-  Heimdall = "heimdall",
-}
+// export enum NetworkType {
+//   Odin = "odin",
+//   Heimdall = "heimdall",
+// }
 
-export enum NodeType {
-  Internal = "internal",
-  Main = "main",
-}
+export type ValidatedNetwork = "odin" | "heimdall" | "odin-internal" | "heimdall-internal";
+export type Network = string;

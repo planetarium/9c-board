@@ -36,24 +36,24 @@ Therefore, each of the features provided here must be used separately for each p
 
 This is a common way to determine what goes into the '[NETWORK]' location in the URL of a feature, which we'll discuss below.
 
-|          |     main      |     internal      |
-| :------: | :-----------: | :---------------: |
-|   odin   |   odin-main   |   odin-internal   |
-| heimdall | heimdall-main | heimdall-internal |
+|          |   main   |     internal      |
+| :------: | :------: | :---------------: |
+|   odin   |   odin   |   odin-internal   |
+| heimdall | heimdall | heimdall-internal |
 
-And since this information is tied to the `NETWORK_CONF_MAP` value you define in your `.env` file, you can change it.
+And since this information is tied to the `NETWORK_CONF_MAP` value and `MIMIR_GRAPHQL_URL_MAP` value you define in your `.env` file, you can change it.
 
 ### Show tablesheet in web
 
-`https://planetarium-9c-board.netlify.app/[NETWORK]/tablesheet/[TABLESHEET_NAME]`
+`https://9c-board.nine-chronicles.dev/[NETWORK]/tablesheet/[TABLESHEET_NAME]`
 
-For instance, you can see current `StakeRegularRewardSheet` of `odin`-`main` network in `https://planetarium-9c-board.netlify.app/odin-main/tablesheet/StakeRegularRewardSheet`.
+For instance, you can see current `StakeRegularRewardSheet` of `odin` network in `https://9c-board.nine-chronicles.dev/odin/tablesheet/StakeRegularRewardSheet`.
 
 <img width="880" alt="image" src="https://user-images.githubusercontent.com/26626194/224272344-622e9d80-a74c-48bf-82b6-62f1e8dde3f1.png">
 
 ### Show avatar in web
 
-`https://planetarium-9c-board.netlify.app/[NETWORK]/avatar/[AVATAR_ADDRESS]?<index=[BLOCK_INDEX]>`
+`https://9c-board.nine-chronicles.dev/[NETWORK]/avatar/[AVATAR_ADDRESS]?<index=[BLOCK_INDEX]>`
 
 You can see some avatar state in web.
 

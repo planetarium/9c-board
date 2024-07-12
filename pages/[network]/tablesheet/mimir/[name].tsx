@@ -1,6 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next";
 import { getGraphQLSDK } from "../../../../utils/mimirGraphQLClient";
-import { getPlanetName, getNodeType } from "../../../../utils/network";
 
 interface TableSheetPageProps {
   tableSheet: string | null;
@@ -56,14 +55,12 @@ const TableSheetPage: NextPage<TableSheetPageProps> = ({ tableSheet }) => {
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const network_info = context.query.network as string;
+  const network = context.query.network as string;
   const sheetName = context.query.name as string;
 
   try {
-    const sheet = (await getGraphQLSDK(
-      getNodeType(network_info),
-    ).GetSheet({
-      planetName: getPlanetName(network_info),
+    const sheet = (await getGraphQLSDK(network)
+    .GetSheet({
       sheetName: sheetName
     })).sheet.csv;
     return { props: { tableSheet: sheet } };
