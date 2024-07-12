@@ -1,9 +1,8 @@
 import type { NextPage, GetServerSideProps } from "next";
-import { getBalance } from "../../../utils/apiClient";
+import { getBalance, PlanetName } from "../../../utils/apiClient";
 import { getGraphQLSDK } from "../../../utils/mimirGraphQLClient";
-import { getPlanetName, getNodeType } from "../../../utils/network";
-import { NodeType } from "../../../constants/network";
-import { PlanetName } from "../../../generated/mimir/graphql-request";
+import { getPlanetName, } from "../../../utils/network";
+import { Network } from "../../../constants/network";
 
 const AGENT_CURRENCY_TICKERS = [
     "CRYSTAL",
@@ -126,10 +125,8 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
         throw new Error("Address parameter is not a string.");
     }
 
-    const nodeType = getNodeType(network);
-    const networkType = getPlanetName(network);
-    const avatarJsonObj = (await getGraphQLSDK(nodeType).GetAvatar({
-        planetName: networkType,
+    const planetName = getPlanetName(network);
+    const avatarJsonObj = (await getGraphQLSDK(network).GetAvatar({
         avatarAddress: address,
     })).avatar;
 
@@ -144,13 +141,11 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
     const inventoryJsonObj = avatarJsonObj.inventory;
     const inventoryObj = parseToInventory(inventoryJsonObj);
     const agentBalanceJsonObjs = await getBalances(
-        nodeType,
-        networkType,
+        planetName,
         AGENT_CURRENCY_TICKERS,
         avatarJsonObj.agentAddress);
     const avatarBalanceJsonObjs = await getBalances(
-        nodeType,
-        networkType,
+        planetName,
         AVATAR_CURRENCY_TICKERS,
         address);
 
@@ -184,8 +179,7 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
     }
 
     async function getBalances(
-        nodeType: NodeType,
-        networkType: PlanetName,
+        network: Network,
         tickers: readonly string[],
         address: any | null
     ): Promise<FAV[]> {
@@ -196,8 +190,7 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
         const balanceJsonObjects = await Promise.all(
             tickers.map(
                 ticker => getBalance(
-                    nodeType,
-                    networkType,
+                    network,
                     address,
                     ticker
                 )

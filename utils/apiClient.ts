@@ -1,9 +1,10 @@
 import { GraphQLClient } from "graphql-request";
-import { NetworkType, NodeType } from "../constants/network";
-import { PlanetName, getSdk } from "../generated/mimir/graphql-request";
+import { Network } from "../constants/network";
+import { getSdk } from "../generated/mimir/graphql-request";
 
-export const BASE_URL = "https://mimir.nine-chronicles.dev/";
-export const INTERNAL_BASE_URL = "https://mimir-internal.nine-chronicles.dev/";
+export type PlanetName = "odin" | "heimdall";
+
+export const BASE_URL = "https://mimir.nine-chronicles.dev";
 
 const defaultHeaders: HeadersInit = {
   "Content-Type": "application/json",
@@ -15,18 +16,8 @@ interface FetchOptions<TBody = undefined> {
   headers?: HeadersInit;
 }
 
-function getBaseUrl(nodeType: NodeType) {
-  if (nodeType === NodeType.Main) {
-    return BASE_URL;
-  } else if (nodeType === NodeType.Internal) {
-    return INTERNAL_BASE_URL;
-  }
-
-  throw new TypeError(`Unexpected nodeType: ${nodeType}`);
-}
-
 async function fetchAPI<TResponse, TBody = undefined>(
-  nodeType: NodeType,
+  network: Network,
   endpoint: string,
   options: FetchOptions<TBody> = {}
 ): Promise<TResponse> {
@@ -39,9 +30,7 @@ async function fetchAPI<TResponse, TBody = undefined>(
       body: body ? JSON.stringify(body) : null,
     };
 
-    const url =
-      getBaseUrl(nodeType) + endpoint;
-
+    const url = `${BASE_URL}/${network}/${endpoint}`;
     const response = await fetch(url, config);
 
     if (!response.ok) {
@@ -63,15 +52,14 @@ async function fetchAPI<TResponse, TBody = undefined>(
 }
 
 export async function getBalance(
-  nodeType: NodeType,
-  networkType: PlanetName,
+  network: Network,
   address: string,
   currencyTicker: string,
 ): Promise<any | null> {
   try {
     return await fetchAPI<any>(
-      nodeType,
-      `${networkType.toLowerCase()}/balances/${address}/${currencyTicker}`
+      network,
+      `/balances/${address}/${currencyTicker}`
     );
   } catch (error) {
     return null;
@@ -79,11 +67,11 @@ export async function getBalance(
 }
 
 // GraphQL
-function getGraphQLEndpoint(nodeType: NodeType) {
-  return `${getBaseUrl(nodeType)}/graphql`;
-}
+// function getGraphQLEndpoint(network: Network) {
+//   return `${BASE_URL}/${network}/graphql`;
+// }
 
-export function getGraphQLSDK(nodeType: NodeType) {
-  const client = new GraphQLClient(getGraphQLEndpoint(nodeType));
-  return getSdk(client);
-}
+// export function getGraphQLSDK(network: Network) {
+//   const client = new GraphQLClient(getGraphQLEndpoint(network));
+//   return getSdk(client);
+// }

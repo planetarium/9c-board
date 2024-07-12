@@ -1,107 +1,151 @@
 scalar Address
 
-enum ElementalType {
-  NORMAL
-  FIRE
-  WATER
-  LAND
-  WIND
+type FungibleAssetValue {
+  rawValue: String!
+  quantity: String!
+  ticker: String!
+  decimalPlaces: Byte!
 }
 
-interface IFungibleItem implements IItem {
+interface IFungibleItem {
   """
   The fungible ID of the item.
   """
   fungibleId: HashDigestSHA256!
-
-  """
-  The ItemType of the item.
-  """
-  itemType: ItemType!
-
-  """
-  The ItemSubType of the item.
-  """
-  itemSubType: ItemSubType!
 }
 
 scalar Guid
 
 scalar HashDigestSHA256
 
-enum ItemSubType {
-  FOOD
-  FULL_COSTUME
-  HAIR_COSTUME
-  EAR_COSTUME
-  EYE_COSTUME
-  TAIL_COSTUME
-  WEAPON
-  ARMOR
-  BELT
-  NECKLACE
-  RING
-  EQUIPMENT_MATERIAL
-  FOOD_MATERIAL
-  MONSTER_PART
-  NORMAL_MATERIAL
-  HOURGLASS
-  AP_STONE
-  CHEST
-    @deprecated(
-      reason: "ItemSubType.Chest has never been used outside the MaterialItemSheet. And we won't use it in the future until we have a specific reason."
-    )
-  TITLE
-  AURA
-}
-
-interface IItem {
-  """
-  The ItemType of the item.
-  """
-  itemType: ItemType!
-
-  """
-  The ItemSubType of the item.
-  """
-  itemSubType: ItemSubType!
-}
-
-enum ItemType {
-  CONSUMABLE
-  COSTUME
-  EQUIPMENT
-  MATERIAL
-}
-
-interface INonFungibleItem implements IItem {
+interface INonFungibleItem {
   """
   The non-fungible ID of the item.
   """
   nonFungibleId: Guid!
   requiredBlockIndex: Long!
-
-  """
-  The ItemType of the item.
-  """
-  itemType: ItemType!
-
-  """
-  The ItemSubType of the item.
-  """
-  itemSubType: ItemSubType!
-}
-
-enum PlanetName {
-  ODIN
-  HEIMDALL
 }
 
 scalar SheetNameType
 
-interface ITradableItem implements IItem {
+type Row {
+  id: Int!
+  elementalType: ElementalType!
+  skillType: SkillType!
+  skillCategory: SkillCategory!
+  skillTargetType: SkillTargetType!
+  hitCount: Int!
+  cooldown: Int!
+  combo: Boolean!
+}
+
+type StatMap {
+  hp: Long!
+  atk: Long!
+  def: Long!
+  cri: Long!
+  hit: Long!
+  spd: Long!
+  drv: Long!
+  drr: Long!
+  cdmg: Long!
+  armorPenetration: Long!
+  thorn: Long!
+  baseHP: Long!
+  baseATK: Long!
+  baseDEF: Long!
+  baseCRI: Long!
+  baseHIT: Long!
+  baseSPD: Long!
+  baseDRV: Long!
+  baseDRR: Long!
+  baseCDMG: Long!
+  baseArmorPenetration: Long!
+  baseThorn: Long!
+  additionalHP: Long!
+  additionalATK: Long!
+  additionalDEF: Long!
+  additionalCRI: Long!
+  additionalHIT: Long!
+  additionalSPD: Long!
+  additionalDRV: Long!
+  additionalDRR: Long!
+  additionalCDMG: Long!
+  additionalArmorPenetration: Long!
+  additionalThorn: Long!
+}
+
+interface ITradableItem {
   tradableId: UUID!
   requiredBlockIndex: Long!
+}
+
+type AgentObject {
+  address: Address!
+  version: Int
+  avatarAddresses: [Address!]
+  monsterCollectionRound: Int
+  avatar(
+    """
+    The index of the avatar in the agent. (0 ~ 2).
+    """
+    index: Int!
+  ): AvatarObject
+  avatars: [AvatarObject!]!
+  stake: StakeStateV2
+}
+
+type RoundData {
+  championshipId: Int!
+  round: Int!
+  arenaType: ArenaType!
+  startBlockIndex: Long!
+  endBlockIndex: Long!
+  requiredMedalCount: Int!
+  entranceFee: Long!
+  ticketPrice: Long!
+  additionalTicketPrice: Long!
+  maxPurchaseCount: Int!
+  maxPurchaseCountWithInterval: Int!
+}
+
+type ArenaObject {
+  """
+  The round of the arena.
+  """
+  round: RoundData
+
+  """
+  The avatar's ranking of the arena.
+  """
+  ranking(avatarAddress: Address!): Long
+
+  """
+  The leaderboard of the arena.
+  """
+  leaderboard(
+    """
+    The ranking of the first avatar. default is 1. This must be greater than or equal to 1.
+    """
+    ranking: Long! = 1
+
+    """
+    The number of avatars. default is 10. This must be greater than or equal to 1 and less than or equal to 100.
+    """
+    length: Int! = 10
+  ): [ArenaRanking]
+}
+
+type Armor {
+  """
+  The ItemSheet ID of the item.
+  """
+  equipmentItemId: Guid!
+
+  """
+  The grade of the item.
+  """
+  grade: Int!
 
   """
   The ItemType of the item.
@@ -112,15 +156,88 @@ interface ITradableItem implements IItem {
   The ItemSubType of the item.
   """
   itemSubType: ItemSubType!
+
+  """
+  The ElementalType of the item.
+  """
+  elementalType: ElementalType!
+
+  """
+  The level of the item.
+  """
+  level: Int
+
+  """
+  The exp of the item.
+  """
+  exp: Long
+
+  """
+  The required block index of the item.
+  """
+  requiredBlockIndex: Int
+
+  """
+  The equipped status of the item.
+  """
+  equipped: Boolean
+
+  """
+  The main stat type of the item.
+  """
+  stat: DecimalStat
 }
 
-type AgentObject {
-  version: Int
-  address: Address!
-  avatarAddresses: [Address!]!
-  monsterCollectionRound: Int
-  avatar(index: Int!): AvatarObject
-  avatars: [AvatarObject!]!
+type Aura {
+  """
+  The ItemSheet ID of the item.
+  """
+  equipmentItemId: Guid!
+
+  """
+  The grade of the item.
+  """
+  grade: Int!
+
+  """
+  The ItemType of the item.
+  """
+  itemType: ItemType!
+
+  """
+  The ItemSubType of the item.
+  """
+  itemSubType: ItemSubType!
+
+  """
+  The ElementalType of the item.
+  """
+  elementalType: ElementalType!
+
+  """
+  The level of the item.
+  """
+  level: Int
+
+  """
+  The exp of the item.
+  """
+  exp: Long
+
+  """
+  The required block index of the item.
+  """
+  requiredBlockIndex: Int
+
+  """
+  The equipped status of the item.
+  """
+  equipped: Boolean
+
+  """
+  The main stat type of the item.
+  """
+  stat: DecimalStat
 }
 
 type AvatarObject {
@@ -129,36 +246,203 @@ type AvatarObject {
   index: Int
   name: String
   level: Int
-  inventory: InventoryObject
   actionPoint: Int
-  runes: [RuneObject!]!
-  collection: [CollectionElementObject!]!
+  dailyRewardReceivedBlockIndex: Int
+  inventory: InventoryObject
+  runes: [RuneObject!]
+  collection: [CollectionElementObject!]
+  itemSlots(
+    """
+    The type of battle that the item slot is used for.
+    """
+    battleType: BattleType!
+  ): ItemSlotState
+  runeSlots(
+    """
+    The type of battle that the rune slot is used for.
+    """
+    battleType: BattleType!
+  ): [IRuneSlot]
+}
+
+type Belt {
+  """
+  The ItemSheet ID of the item.
+  """
+  equipmentItemId: Guid!
+
+  """
+  The grade of the item.
+  """
+  grade: Int!
+
+  """
+  The ItemType of the item.
+  """
+  itemType: ItemType!
+
+  """
+  The ItemSubType of the item.
+  """
+  itemSubType: ItemSubType!
+
+  """
+  The ElementalType of the item.
+  """
+  elementalType: ElementalType!
+
+  """
+  The level of the item.
+  """
+  level: Int
+
+  """
+  The exp of the item.
+  """
+  exp: Long
+
+  """
+  The required block index of the item.
+  """
+  requiredBlockIndex: Int
+
+  """
+  The equipped status of the item.
+  """
+  equipped: Boolean
+
+  """
+  The main stat type of the item.
+  """
+  stat: DecimalStat
 }
 
 type CollectionElementObject {
   collectionSheetId: Int!
 }
 
+type Consumable {
+  """
+  The ItemSheet ID of the item.
+  """
+  itemId: Guid!
+
+  """
+  The grade of the item.
+  """
+  grade: Int!
+
+  """
+  The ItemType of the item.
+  """
+  itemType: ItemType!
+
+  """
+  The ItemSubType of the item.
+  """
+  itemSubType: ItemSubType!
+
+  """
+  The ElementalType of the item.
+  """
+  elementalType: ElementalType!
+
+  """
+  The required block index of the item.
+  """
+  requiredBlockIndex: Int
+
+  """
+  The stats of the item.
+  """
+  stats: [DecimalStat]
+}
+
+type Contract {
+  """
+  The name of the table that contains the regular fixed rewards for staking.
+  """
+  stakeRegularFixedRewardSheetTableName: String!
+
+  """
+  The name of the table that contains the regular rewards for staking.
+  """
+  stakeRegularRewardSheetTableName: String!
+
+  """
+  The interval at which rewards are given.
+  """
+  rewardInterval: Long!
+
+  """
+  The interval at which the stake is locked up.
+  """
+  lockupInterval: Long!
+}
+
+type DecimalStat {
+  statType: StatType!
+  baseValue: Decimal!
+  additionalValue: Decimal!
+}
+
+type FavProduct {
+  productId: UUID
+  sellerAgentAddress: Address
+  sellerAvatarAddress: Address
+  price: FungibleAssetValue
+  registeredBlockIndex: Long
+}
+
 type InventoryObject {
+  address: Address!
+
   """
   The consumables in the inventory.
   """
-  consumables: [ItemObject!]!
+  consumables: [ItemObject!]
 
   """
   The costumes in the inventory.
   """
-  costumes: [ItemObject!]!
+  costumes: [ItemObject!]
 
   """
   The equipments in the inventory.
   """
-  equipments: [ItemObject!]!
+  equipments: [ItemObject!]
 
   """
   The materials in the inventory.
   """
-  materials: [ItemObject!]!
+  materials: [ItemObject!]
+}
+
+type ItemProduct {
+  productId: UUID
+  sellerAgentAddress: Address
+  sellerAvatarAddress: Address
+  price: FungibleAssetValue
+  registeredBlockIndex: Long
+  itemCount: Int
+  tradableItem: ItemUsable
+}
+
+type ItemSlotState {
+  """
+  The type of battle that the item slot is used for.
+  """
+  battleType: BattleType!
+
+  """
+  The non-fungible item IDs of the costumes equipped in the item slot.
+  """
+  costumes: [Guid]!
+
+  """
+  The non-fungible item IDs of the equipments equipped in the item slot.
+  """
+  equipments: [Guid]!
 }
 
 type ItemObject {
@@ -193,9 +477,19 @@ type ItemObject {
   count: Int!
 
   """
+  The locked status of the item.
+  """
+  locked: Boolean!
+
+  """
   The level of the item.
   """
   level: Int
+
+  """
+  The exp of the item.
+  """
+  exp: Long
 
   """
   The required block index of the item.
@@ -216,21 +510,225 @@ type ItemObject {
   The Tradable ID of the item.
   """
   tradableId: Guid
+
+  """
+  The equipped status of the item.
+  """
+  equipped: Boolean
+
+  """
+  The main stat type of the item.
+  """
+  mainStatType: StatType
+
+  """
+  The stats map of the item.
+  """
+  statsMap: StatMap
+
+  """
+  The skills of the item.
+  """
+  skills: [SkillObject]
+
+  """
+  The buff skills of the item.
+  """
+  buffSkills: [SkillObject]
 }
 
+type TradableMaterial {
+  """
+  The tradable ID of the item.
+  """
+  tradableId: Guid!
+
+  """
+  The ItemSheet ID of the item.
+  """
+  materialItemId: HashDigestSHA256!
+
+  """
+  The grade of the item.
+  """
+  grade: Int!
+
+  """
+  The ItemType of the item.
+  """
+  itemType: ItemType!
+
+  """
+  The ItemSubType of the item.
+  """
+  itemSubType: ItemSubType!
+
+  """
+  The ElementalType of the item.
+  """
+  elementalType: ElementalType!
+
+  """
+  The required block index of the item.
+  """
+  requiredBlockIndex: Int
+}
+
+type Necklace {
+  """
+  The ItemSheet ID of the item.
+  """
+  equipmentItemId: Guid!
+
+  """
+  The grade of the item.
+  """
+  grade: Int!
+
+  """
+  The ItemType of the item.
+  """
+  itemType: ItemType!
+
+  """
+  The ItemSubType of the item.
+  """
+  itemSubType: ItemSubType!
+
+  """
+  The ElementalType of the item.
+  """
+  elementalType: ElementalType!
+
+  """
+  The level of the item.
+  """
+  level: Int
+
+  """
+  The exp of the item.
+  """
+  exp: Long
+
+  """
+  The required block index of the item.
+  """
+  requiredBlockIndex: Int
+
+  """
+  The equipped status of the item.
+  """
+  equipped: Boolean
+
+  """
+  The main stat type of the item.
+  """
+  stat: DecimalStat
+}
+
+union Product = FavProduct | ItemProduct
+
 type Query {
-  agent(planetName: PlanetName!, address: Address!): AgentObject
-  avatar(planetName: PlanetName!, address: Address!): AvatarObject
-  sheetNames(planetName: PlanetName!): [String!]!
+  agent(address: Address!): AgentObject
+  avatar(address: Address!): AvatarObject
+  inventory(address: Address!): InventoryObject
+  arena: ArenaObject
+  product(skip: Long!, limit: Int!): [Product]
+  sheetNames: [String!]!
   sheet(
-    planetName: PlanetName!
     sheetName: SheetNameType!
     encodeAsBase64: Boolean = false
   ): SheetObject!
 }
 
+type Ring {
+  """
+  The ItemSheet ID of the item.
+  """
+  equipmentItemId: Guid!
+
+  """
+  The grade of the item.
+  """
+  grade: Int!
+
+  """
+  The ItemType of the item.
+  """
+  itemType: ItemType!
+
+  """
+  The ItemSubType of the item.
+  """
+  itemSubType: ItemSubType!
+
+  """
+  The ElementalType of the item.
+  """
+  elementalType: ElementalType!
+
+  """
+  The level of the item.
+  """
+  level: Int
+
+  """
+  The exp of the item.
+  """
+  exp: Long
+
+  """
+  The required block index of the item.
+  """
+  requiredBlockIndex: Int
+
+  """
+  The equipped status of the item.
+  """
+  equipped: Boolean
+
+  """
+  The main stat type of the item.
+  """
+  stat: DecimalStat
+}
+
+type IRuneSlot {
+  """
+  The index of the rune slot.
+  """
+  slotIndex: Int!
+
+  """
+  The type of the rune slot.
+  """
+  runeSlotType: RuneSlotType!
+
+  """
+  The type of the rune.
+  """
+  runeType: RuneType!
+
+  """
+  Whether the rune slot is locked.
+  """
+  isLock: Boolean!
+
+  """
+  The RuneSheet ID of the rune equipped in the rune slot.
+  """
+  runeSheetId: Int
+}
+
 type RuneObject {
+  """
+  The RuneSheet ID of the rune.
+  """
   runeSheetId: Int!
+
+  """
+  The level of the rune.
+  """
   level: Int!
 }
 
@@ -246,9 +744,266 @@ type SheetObject {
   csv: String
 }
 
-scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
+type SkillObject {
+  """
+  The SkillSheet.Row of the skill.
+  """
+  skillRow: Row!
+  power: Long!
+  chance: Int!
+  statPowerRatio: Int!
+  referencedStatType: StatType!
+}
+
+type StakeStateV2 {
+  """
+  The contract of the stake.
+  """
+  Contract: Contract!
+
+  """
+  The block index when the stake started.
+  """
+  StartedBlockIndex: Long!
+
+  """
+  The block index when the stake received. If 0, the stake is not received yet.
+  """
+  ReceivedBlockIndex: Long!
+
+  """
+  The block index when the stake can be cancelled.
+  """
+  cancellableBlockIndex: Long!
+
+  """
+  The block index when the stake can be claimed.
+  """
+  claimableBlockIndex: Long!
+
+  """
+  The block index when the stake was claimed. If 0, the stake is not claimed yet.
+  """
+  claimedBlockIndex: Long!
+}
+
+union ItemUsable =
+  | Armor
+  | Aura
+  | Belt
+  | Necklace
+  | Weapon
+  | Ring
+  | TradableMaterial
+  | Consumable
+
+type Weapon {
+  """
+  The ItemSheet ID of the item.
+  """
+  equipmentItemId: Guid!
+
+  """
+  The grade of the item.
+  """
+  grade: Int!
+
+  """
+  The ItemType of the item.
+  """
+  itemType: ItemType!
+
+  """
+  The ItemSubType of the item.
+  """
+  itemSubType: ItemSubType!
+
+  """
+  The ElementalType of the item.
+  """
+  elementalType: ElementalType!
+
+  """
+  The level of the item.
+  """
+  level: Int
+
+  """
+  The exp of the item.
+  """
+  exp: Long
+
+  """
+  The required block index of the item.
+  """
+  requiredBlockIndex: Int
+
+  """
+  The equipped status of the item.
+  """
+  equipped: Boolean
+
+  """
+  The main stat type of the item.
+  """
+  stat: DecimalStat
+}
+
+"""
+The `Byte` scalar type represents non-fractional whole numeric values. Byte can represent values between 0 and 255.
+"""
+scalar Byte
+
+enum ElementalType {
+  NORMAL
+  FIRE
+  WATER
+  LAND
+  WIND
+}
+
+enum SkillType {
+  ATTACK
+  HEAL
+  BUFF
+  DEBUFF
+}
+
+enum SkillCategory {
+  NORMAL_ATTACK
+  BLOW_ATTACK
+  DOUBLE_ATTACK
+  AREA_ATTACK
+  BUFF_REMOVAL_ATTACK
+  SHATTER_STRIKE
+  HEAL
+  HP_BUFF
+  ATTACK_BUFF
+  DEFENSE_BUFF
+  CRITICAL_BUFF
+  HIT_BUFF
+  SPEED_BUFF
+  DAMAGE_REDUCTION_BUFF
+  CRITICAL_DAMAGE_BUFF
+  BUFF
+  DEBUFF
+  TICK_DAMAGE
+  FOCUS
+  DISPEL
+}
+
+enum SkillTargetType {
+  ENEMY
+  ENEMIES
+  SELF
+  ALLY
+}
 
 """
 The `Long` scalar type represents non-fractional signed whole 64-bit numeric values. Long can represent values between -(2^63) and 2^63 - 1.
 """
 scalar Long
+
+scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
+
+type ArenaRanking {
+  avatarAddress: String!
+  arenaAddress: String!
+  cp: Int
+  win: Int!
+  lose: Int!
+  rank: Long!
+  ticket: Int!
+  ticketResetCount: Int!
+  purchasedTicketCount: Int!
+  score: Int!
+  avatar: Avatar
+}
+
+enum ItemType {
+  CONSUMABLE
+  COSTUME
+  EQUIPMENT
+  MATERIAL
+}
+
+enum ItemSubType {
+  FOOD
+  FULL_COSTUME
+  HAIR_COSTUME
+  EAR_COSTUME
+  EYE_COSTUME
+  TAIL_COSTUME
+  WEAPON
+  ARMOR
+  BELT
+  NECKLACE
+  RING
+  EQUIPMENT_MATERIAL
+  FOOD_MATERIAL
+  MONSTER_PART
+  NORMAL_MATERIAL
+  HOURGLASS
+  AP_STONE
+  CHEST
+    @deprecated(
+      reason: "ItemSubType.Chest has never been used outside the MaterialItemSheet. And we won't use it in the future until we have a specific reason."
+    )
+  TITLE
+  AURA
+  GRIMOIRE
+}
+
+enum BattleType {
+  ADVENTURE
+  ARENA
+  RAID
+  END
+}
+
+enum StatType {
+  NONE
+  HP
+  ATK
+  DEF
+  CRI
+  HIT
+  SPD
+  DRV
+  DRR
+  CDMG
+  ARMOR_PENETRATION
+  THORN
+}
+
+"""
+The built-in `Decimal` scalar type.
+"""
+scalar Decimal
+
+enum RuneSlotType {
+  DEFAULT
+  NCG
+  STAKE
+  CRYSTAL
+}
+
+enum RuneType {
+  STAT
+  SKILL
+}
+
+enum ArenaType {
+  OFF_SEASON
+  SEASON
+  CHAMPIONSHIP
+}
+
+type Avatar {
+  agentAddress: String!
+  avatarAddress: String!
+  avatarName: String!
+  level: Int!
+  actionPoint: Int!
+  dailyRewardReceivedIndex: Long!
+}
