@@ -1,88 +1,29 @@
 query GetAgent($agentAddress: Address!) {
-    agent(address: $agentAddress)
-    {
-        avatars
-        {
-            address
-            name
-            level
-            actionPoint
-        }
+  agent(address: $agentAddress) {
+    avatarAddresses {
+      value
     }
+  }
 }
 
 query GetSheetNames {
-    sheetNames
+  sheetNames
 }
 
 query GetSheet($sheetName: SheetNameType!) {
-    sheet(sheetName: $sheetName) {
-        csv
-    }
+  sheet(sheetName: $sheetName) {
+    csv
+  }
 }
 
 # TODO: GetBalance
 
 query GetAvatar($avatarAddress: Address!) {
   avatar(address: $avatarAddress) {
-    agentAddress
     address
+    agentAddress
     name
-    actionPoint
     level
-    inventory {
-      costumes {
-        count
-        elementalType
-        fungibleId
-        grade
-        itemSheetId
-        itemSubType
-        itemType
-        level
-        nonFungibleId
-        requiredBlockIndex
-        tradableId
-      }
-      equipments {
-        count
-        elementalType
-        fungibleId
-        grade
-        itemSheetId
-        itemSubType
-        itemType
-        level
-        nonFungibleId
-        requiredBlockIndex
-        tradableId
-      }
-      materials {
-        count
-        elementalType
-        fungibleId
-        grade
-        itemSheetId
-        itemSubType
-        itemType
-        level
-        nonFungibleId
-        requiredBlockIndex
-        tradableId
-      }
-      consumables {
-        count
-        elementalType
-        fungibleId
-        grade
-        itemSheetId
-        itemSubType
-        itemType
-        level
-        nonFungibleId
-        requiredBlockIndex
-        tradableId
-      }
-    }
   }
+  actionPoint(address: $avatarAddress)
 }
