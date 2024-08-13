@@ -1,6 +1,6 @@
 import type { NextPage, GetServerSideProps } from "next";
 import { getBalance, PlanetName } from "../../../utils/apiClient";
-import { getGraphQLSDK } from "../../../utils/mimirGraphQLClient";
+import { getMimirGraphQLSDK } from "../../../utils/mimirGraphQLClient";
 import { getPlanetName, } from "../../../utils/network";
 import { Network } from "../../../constants/network";
 
@@ -126,7 +126,7 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
     }
 
     const planetName = getPlanetName(network);
-    const avatarJsonObj = (await getGraphQLSDK(network).GetAvatar({
+    const avatarJsonObj = (await getMimirGraphQLSDK(network).GetAvatar({
         avatarAddress: address,
     })).avatar;
 

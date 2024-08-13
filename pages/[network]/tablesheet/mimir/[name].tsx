@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next";
-import { getGraphQLSDK } from "../../../../utils/mimirGraphQLClient";
+import { getMimirGraphQLSDK } from "../../../../utils/mimirGraphQLClient";
 
 interface TableSheetPageProps {
   tableSheet: string | null;

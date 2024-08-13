@@ -1,4 +1,3 @@
-import { GetServerSidePropsContext } from "next/types";
 import { getSdk } from "../generated/headless/graphql-request";
 import { GraphQLClient } from "graphql-request"
 
@@ -12,8 +11,7 @@ function parseNetworkConfMap(confMapString: string): Map<string, ReturnType<type
     return map;
 }
 
-
-export const networkToSDK = (network: string) => {
+export function getHeadlessGraphQLSDK(network: string) {
     if (process.env.NETWORK_CONF_MAP === undefined) {
         throw new Error("All required environment variables are not set.");
     }

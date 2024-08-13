@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next"
-import { networkToSDK } from "../../../utils/headlessGraphQLClient";
+import { getHeadlessGraphQLSDK } from "../../../utils/headlessGraphQLClient";
 import { BencodexList, decode } from "bencodex";
 import React from "react";
 import * as crypto from "node:crypto";
@@ -179,7 +179,7 @@ export const getServerSideProps: GetServerSideProps<StakePageProps> = async (con
         throw new Error("Address parameter is not an address.");
     }
 
-    const sdk = networkToSDK(network);
+    const sdk = getHeadlessGraphQLSDK(network);
 
     const blockIndexString = context.query.blockIndex || context.query.index;
     const blockIndex = blockIndexString === undefined ? -1 : Number(blockIndexString);

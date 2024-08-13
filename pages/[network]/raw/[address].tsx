@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next"
-import { networkToSDK } from "../../../utils/headlessGraphQLClient";
+import { getHeadlessGraphQLSDK } from "../../../utils/headlessGraphQLClient";
 import { decode } from "bencodex";
 import React from "react";
 import { JSONTree } from "react-json-tree";
@@ -124,7 +124,7 @@ export const getServerSideProps: GetServerSideProps<RawStatePageProps> = async (
         throw new Error("Address parameter is not an address.");
     }
 
-    const sdk = networkToSDK(network);
+    const sdk = getHeadlessGraphQLSDK(network);
 
     const blockIndexString = context.query.blockIndex || context.query.index;
     const blockIndex = blockIndexString === undefined ? -1 : Number(blockIndexString);

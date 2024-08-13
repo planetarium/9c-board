@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next"
-import { networkToSDK } from "../../../utils/headlessGraphQLClient";
+import { getHeadlessGraphQLSDK } from "../../../utils/headlessGraphQLClient";
 import { Sdk } from "../../../generated/headless/graphql-request";
 
 interface TableSheetPageProps {
@@ -77,7 +77,7 @@ export const getServerSideProps: GetServerSideProps<TableSheetPageProps> = async
         throw new Error("Block index parameter is not a string.");
     }
 
-    const sdk = networkToSDK(network);
+    const sdk = getHeadlessGraphQLSDK(network);
 
     const blockHash = await getHash(hash, index, sdk);
 

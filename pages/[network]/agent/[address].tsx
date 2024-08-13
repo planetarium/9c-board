@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next"
-import { getGraphQLSDK } from "../../../utils/mimirGraphQLClient";
+import { getMimirGraphQLSDK } from "../../../utils/mimirGraphQLClient";
 
 interface Agent {
     avatars: Avatar[];
@@ -73,7 +73,7 @@ export const getServerSideProps: GetServerSideProps<AgentPageProps> = async (con
         throw new Error("Address parameter is not a string.");
     }
 
-    const sdk = getGraphQLSDK(network);
+    const sdk = getMimirGraphQLSDK(network);
     const agentJsonObj = (await sdk.GetAgent({ agentAddress: address, })).agent;
     if (agentJsonObj === null || agentJsonObj === undefined) {
         return {
