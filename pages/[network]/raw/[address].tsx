@@ -134,7 +134,7 @@ export const getServerSideProps: GetServerSideProps<RawStatePageProps> = async (
 
     let rawState;
     try {
-        rawState = (await sdk.RawState({ address, hash })).state as HexString | null;;
+        rawState = (await sdk.GetState({ address, hash })).state as HexString | null;;
     } catch (e) {
         console.warn(e)
         rawState = null;

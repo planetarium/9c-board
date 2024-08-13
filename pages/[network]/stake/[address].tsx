@@ -191,7 +191,7 @@ export const getServerSideProps: GetServerSideProps<StakePageProps> = async (con
     console.log(stakeStateAddress);
     let rawState;
     try {
-        rawState = (await sdk.RawState({ address: stakeStateAddress, hash })).state as HexString | null;
+        rawState = (await sdk.GetState({ address: stakeStateAddress, hash })).state as HexString | null;
     } catch (e) {
         console.warn(e)
         rawState = null;

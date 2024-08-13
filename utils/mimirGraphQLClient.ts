@@ -16,7 +16,7 @@ function getUrl(network: Network) {
     if (pair.indexOf("=") === -1) {
       throw new Error(
         "MIMIR_GRAPHQL_URL_MAP is not well-formed." +
-          " It should be a comma-separated list of key-value pairs."
+        " It should be a comma-separated list of key-value pairs."
       );
     }
 
