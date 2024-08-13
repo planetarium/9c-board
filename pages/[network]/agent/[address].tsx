@@ -6,8 +6,8 @@ interface Agent {
 }
 
 interface Avatar {
-    name: string;
     address: string;
+    name: string;
     level: number;
     actionPoint: number;
 }
@@ -73,8 +73,8 @@ export const getServerSideProps: GetServerSideProps<AgentPageProps> = async (con
         throw new Error("Address parameter is not a string.");
     }
 
-    const sdk = getMimirGraphQLSDK(network);
-    const agentJsonObj = (await sdk.GetAgent({ agentAddress: address, })).agent;
+    const mimir = getMimirGraphQLSDK(network);
+    const agentJsonObj = (await mimir.GetAgent({ agentAddress: address, })).agent;
     if (agentJsonObj === null || agentJsonObj === undefined) {
         return {
             props: {
@@ -83,10 +83,27 @@ export const getServerSideProps: GetServerSideProps<AgentPageProps> = async (con
         }
     }
 
+    const avatars = await Promise.all(agentJsonObj.avatarAddresses
+        .map(async (avatarAddress) => {
+            const avatarResult = (await mimir.GetAvatar({ avatarAddress: avatarAddress }));
+            if (avatarResult === null || avatarResult.avatar === undefined) {
+                return {
+                    address: avatarAddress,
+                    name: "?",
+                    level: 0,
+                    actionPoint: 0,
+                };
+            }
+            return {
+                ...avatarResult.avatar,
+                actionPoint: avatarResult.actionPoint,
+            }
+        }));
+
     return {
         props: {
             agent: {
-                avatars: agentJsonObj.avatars as Avatar[],
+                avatars: avatars as Avatar[],
             },
         }
     }
