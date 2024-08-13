@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next"
-import { networkToSDK } from "../../../utils/sdk";
+import { networkToSDK } from "../../../utils/headlessGraphQLClient";
 import { Sdk } from "../../../generated/headless/graphql-request";
 
 interface TableSheetPageProps {
