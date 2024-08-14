@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next"
-import { networkToSDK } from "../../../utils/sdk";
+import { getHeadlessGraphQLSDK } from "../../../utils/headlessGraphQLClient";
 import { Sdk } from "../../../generated/headless/graphql-request";
 
 interface TableSheetPageProps {
@@ -77,7 +77,7 @@ export const getServerSideProps: GetServerSideProps<TableSheetPageProps> = async
         throw new Error("Block index parameter is not a string.");
     }
 
-    const sdk = networkToSDK(network);
+    const sdk = getHeadlessGraphQLSDK(network);
 
     const blockHash = await getHash(hash, index, sdk);
 
@@ -86,7 +86,7 @@ export const getServerSideProps: GetServerSideProps<TableSheetPageProps> = async
         .digest("hex");
 
     try {
-        const state = Buffer.from((await sdk.RawState({ address, hash: blockHash })).state, "hex");
+        const state = Buffer.from((await sdk.GetState({ address, hash: blockHash })).state, "hex");
         const tableSheet = require('bencodex').decode(state);
 
         if (typeof tableSheet !== "string") {

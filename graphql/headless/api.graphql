@@ -1,66 +1,87 @@
 query RankingMap($index: Int!) {
-    stateQuery {
-        rankingMap(index: $index) {
-            rankingInfos {
-                ...RankingRow
-            }
-        }
+  stateQuery {
+    rankingMap(index: $index) {
+      rankingInfos {
+        ...RankingRow
+      }
     }
+  }
 }
 
 fragment RankingRow on RankingInfoType {
-    avatarName
-    avatarAddress
-    exp
+  avatarName
+  avatarAddress
+  exp
 }
 
 query Avatar($address: Address!) {
-    stateQuery {
-        avatar(avatarAddress: $address) {
-            name
-            actionPoint
-            level
-            agentAddress
-        }
+  stateQuery {
+    avatar(avatarAddress: $address) {
+      name
+      actionPoint
+      level
+      agentAddress
     }
+  }
 }
 
 query Agent($address: Address!) {
-    stateQuery {
-        agent(address: $address) {
-            gold
-            avatarStates {
-                address
-                name
-                level
-                actionPoint
-            }
-        }
+  stateQuery {
+    agent(address: $address) {
+      gold
+      avatarStates {
+        address
+        name
+        level
+        actionPoint
+      }
     }
+  }
 }
 
-query RawState($address: Address!, $hash: ByteString = null, $accountAddress: Address! = "0x1000000000000000000000000000000000000000") {
-    state(address: $address, hash: $hash, accountAddress: $accountAddress)
+query GetState(
+  $address: Address!
+  $hash: ByteString = null
+  $accountAddress: Address! = "0x1000000000000000000000000000000000000000"
+) {
+  state(address: $address, hash: $hash, accountAddress: $accountAddress)
 }
 
 query GetGoldBalance($address: Address!, $hash: ByteString = null) {
-    goldBalance(address: $address, hash: $hash)
+  goldBalance(address: $address, hash: $hash)
 }
 
 query GetBlockHashByBlockIndex($index: ID!) {
-    chainQuery {
-        blockQuery {
-            block(index: $index) {
-                hash
-            }
-        }
+  chainQuery {
+    blockQuery {
+      block(index: $index) {
+        hash
+      }
     }
+  }
 }
 
-query GetBalance($address: Address!, $currency: CurrencyInput!, $hash: ByteString = null) {
-    stateQuery(hash: $hash) {
-        balance(address: $address, currency: $currency) {
-            quantity
-        }
+query GetBalance(
+  $address: Address!
+  $currency: CurrencyInput!
+  $hash: ByteString = null
+) {
+  stateQuery(hash: $hash) {
+    balance(address: $address, currency: $currency) {
+      quantity
     }
+  }
+}
+
+query GetInventory($address: Address!) {
+  stateQuery {
+    avatar(avatarAddress: $address) {
+      inventory {
+        items {
+          itemSheetId: id
+          count
+        }
+      }
+    }
+  }
 }

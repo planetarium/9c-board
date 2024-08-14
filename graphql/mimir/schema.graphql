@@ -1,5 +1,11 @@
 scalar Address
 
+type IValue {
+  kind: ValueKind!
+  inspect: String!
+  encodingLength: Long!
+}
+
 type FungibleAssetValue {
   rawValue: String!
   quantity: String!
@@ -80,19 +86,25 @@ interface ITradableItem {
   requiredBlockIndex: Long!
 }
 
-type AgentObject {
-  address: Address!
-  version: Int
-  avatarAddresses: [Address!]
-  monsterCollectionRound: Int
-  avatar(
+type SeasonInfo {
+  address: Address
+  season: Long!
+  startBlockIndex: Long!
+  endBlockIndex: Long!
+  nextStartBlockIndex: Long!
+  bossId: Int!
+}
+
+type AdventureBossObject {
+  """
+  The season of the adventure boss
+  """
+  season(
     """
-    The index of the avatar in the agent. (0 ~ 2).
+    The number of season. 0 is latest season.
     """
-    index: Int!
-  ): AvatarObject
-  avatars: [AvatarObject!]!
-  stake: StakeStateV2
+    number: Long = 0
+  ): SeasonInfo
 }
 
 type RoundData {
@@ -238,31 +250,6 @@ type Aura {
   The main stat type of the item.
   """
   stat: DecimalStat
-}
-
-type AvatarObject {
-  address: Address!
-  agentAddress: Address
-  index: Int
-  name: String
-  level: Int
-  actionPoint: Int
-  dailyRewardReceivedBlockIndex: Int
-  inventory: InventoryObject
-  runes: [RuneObject!]
-  collection: [CollectionElementObject!]
-  itemSlots(
-    """
-    The type of battle that the item slot is used for.
-    """
-    battleType: BattleType!
-  ): ItemSlotState
-  runeSlots(
-    """
-    The type of battle that the rune slot is used for.
-    """
-    battleType: BattleType!
-  ): [IRuneSlot]
 }
 
 type Belt {
@@ -539,11 +526,6 @@ type ItemObject {
 
 type TradableMaterial {
   """
-  The tradable ID of the item.
-  """
-  tradableId: Guid!
-
-  """
   The ItemSheet ID of the item.
   """
   materialItemId: HashDigestSHA256!
@@ -629,11 +611,12 @@ type Necklace {
 union Product = FavProduct | ItemProduct
 
 type Query {
-  agent(address: Address!): AgentObject
-  avatar(address: Address!): AvatarObject
-  inventory(address: Address!): InventoryObject
-  arena: ArenaObject
-  product(skip: Long!, limit: Int!): [Product]
+  metadata(pollerType: String!, collectionName: String!): Int
+  agent(address: Address!): AgentState!
+  avatar(address: Address!): AvatarState!
+  actionPoint(address: Address!): Int!
+  dailyReward(address: Address!): Long!
+  arena: ArenaObject!
   sheetNames: [String!]!
   sheet(
     sheetName: SheetNameType!
@@ -691,33 +674,6 @@ type Ring {
   The main stat type of the item.
   """
   stat: DecimalStat
-}
-
-type IRuneSlot {
-  """
-  The index of the rune slot.
-  """
-  slotIndex: Int!
-
-  """
-  The type of the rune slot.
-  """
-  runeSlotType: RuneSlotType!
-
-  """
-  The type of the rune.
-  """
-  runeType: RuneType!
-
-  """
-  Whether the rune slot is locked.
-  """
-  isLock: Boolean!
-
-  """
-  The RuneSheet ID of the rune equipped in the rune slot.
-  """
-  runeSheetId: Int
 }
 
 type RuneObject {
@@ -849,6 +805,16 @@ type Weapon {
   stat: DecimalStat
 }
 
+enum ValueKind {
+  NULL
+  BOOLEAN
+  INTEGER
+  BINARY
+  TEXT
+  LIST
+  DICTIONARY
+}
+
 """
 The `Byte` scalar type represents non-fractional whole numeric values. Byte can represent values between 0 and 255.
 """
@@ -909,7 +875,6 @@ scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 type ArenaRanking {
   avatarAddress: String!
   arenaAddress: String!
-  cp: Int
   win: Int!
   lose: Int!
   rank: Long!
@@ -918,6 +883,7 @@ type ArenaRanking {
   purchasedTicketCount: Int!
   score: Int!
   avatar: Avatar
+  cp: Int
 }
 
 enum ItemType {
@@ -954,13 +920,6 @@ enum ItemSubType {
   GRIMOIRE
 }
 
-enum BattleType {
-  ADVENTURE
-  ARENA
-  RAID
-  END
-}
-
 enum StatType {
   NONE
   HP
@@ -981,16 +940,41 @@ The built-in `Decimal` scalar type.
 """
 scalar Decimal
 
-enum RuneSlotType {
-  DEFAULT
-  NCG
-  STAKE
-  CRYSTAL
+enum BattleType {
+  ADVENTURE
+  ARENA
+  RAID
+  END
 }
 
-enum RuneType {
-  STAT
-  SKILL
+type AgentState {
+  avatarAddresses: [KeyValuePairOfInt32AndAddress!]!
+  monsterCollectionRound: Int!
+  version: Int!
+  address: Address!
+}
+
+type AvatarState {
+  version: Int!
+  name: String!
+  characterId: Int!
+  level: Int!
+  exp: Long!
+  updatedAt: Long!
+  agentAddress: Address!
+  mailBox: MailBox!
+  blockIndex: Long!
+  stageMap: [KeyValuePairOfInt32AndInt32!]!
+  monsterMap: [KeyValuePairOfInt32AndInt32!]!
+  itemMap: [KeyValuePairOfInt32AndInt32!]!
+  eventMap: [KeyValuePairOfInt32AndInt32!]!
+  hair: Int!
+  lens: Int!
+  ear: Int!
+  tail: Int!
+  combinationSlotAddresses: [Address!]!
+  rankingMapAddress: Address!
+  address: Address!
 }
 
 enum ArenaType {
@@ -1006,4 +990,28 @@ type Avatar {
   level: Int!
   actionPoint: Int!
   dailyRewardReceivedIndex: Long!
+  characterId: Int!
+}
+
+type KeyValuePairOfInt32AndInt32 {
+  key: Int!
+  value: Int!
+}
+
+type MailBox {
+  mails: [Mail!]!
+  bencoded: IValue!
+}
+
+type KeyValuePairOfInt32AndAddress {
+  key: Int!
+  value: Address!
+}
+
+type Mail {
+  id: UUID!
+  typeId: String!
+  blockIndex: Long!
+  requiredBlockIndex: Long!
+  bencoded: IValue!
 }

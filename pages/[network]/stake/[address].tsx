@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next"
-import { networkToSDK } from "../../../utils/sdk";
+import { getHeadlessGraphQLSDK } from "../../../utils/headlessGraphQLClient";
 import { BencodexList, decode } from "bencodex";
 import React from "react";
 import * as crypto from "node:crypto";
@@ -170,7 +170,7 @@ async function deriveAddress(
 
 export const getServerSideProps: GetServerSideProps<StakePageProps> = async (context) => {
     const network = context.query.network;
-    if (typeof(network) !== "string") {
+    if (typeof (network) !== "string") {
         throw new Error("Network parameter is not a string.");
     }
 
@@ -179,7 +179,7 @@ export const getServerSideProps: GetServerSideProps<StakePageProps> = async (con
         throw new Error("Address parameter is not an address.");
     }
 
-    const sdk = networkToSDK(network);
+    const sdk = getHeadlessGraphQLSDK(network);
 
     const blockIndexString = context.query.blockIndex || context.query.index;
     const blockIndex = blockIndexString === undefined ? -1 : Number(blockIndexString);
@@ -191,7 +191,7 @@ export const getServerSideProps: GetServerSideProps<StakePageProps> = async (con
     console.log(stakeStateAddress);
     let rawState;
     try {
-        rawState = (await sdk.RawState({ address: stakeStateAddress, hash })).state as HexString | null;
+        rawState = (await sdk.GetState({ address: stakeStateAddress, hash })).state as HexString | null;
     } catch (e) {
         console.warn(e)
         rawState = null;

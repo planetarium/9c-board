@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next";
-import { getGraphQLSDK } from "../../../../utils/mimirGraphQLClient";
+import { getMimirGraphQLSDK } from "../../../../utils/mimirGraphQLClient";
 
 interface TableSheetPageProps {
   tableSheet: string | null;
@@ -59,10 +59,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const sheetName = context.query.name as string;
 
   try {
-    const sheet = (await getGraphQLSDK(network)
-    .GetSheet({
-      sheetName: sheetName
-    })).sheet.csv;
+    const sheet = (await getMimirGraphQLSDK(network)
+      .GetSheet({ sheetName: sheetName })).sheet.csv;
     return { props: { tableSheet: sheet } };
   } catch (error) {
     console.error("Error fetching sheet:", error);

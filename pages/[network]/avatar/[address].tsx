@@ -1,8 +1,9 @@
 import type { NextPage, GetServerSideProps } from "next";
-import { getBalance, PlanetName } from "../../../utils/apiClient";
-import { getGraphQLSDK } from "../../../utils/mimirGraphQLClient";
+import { getBalance } from "../../../utils/apiClient";
+import { getMimirGraphQLSDK } from "../../../utils/mimirGraphQLClient";
 import { getPlanetName, } from "../../../utils/network";
 import { Network } from "../../../constants/network";
+import { getHeadlessGraphQLSDK } from "../../../utils/headlessGraphQLClient";
 
 const AGENT_CURRENCY_TICKERS = [
     "CRYSTAL",
@@ -35,7 +36,7 @@ interface Avatar {
     level: number;
     actionPoint: number;
     favs: FAV[];
-    inventory: Inventory;
+    inventory: null | Inventory;
 }
 
 interface Inventory {
@@ -44,13 +45,7 @@ interface Inventory {
 
 interface Item {
     itemSheetId: number;
-    grade: number;
-    itemType: string;
-    itemSubType: string;
-    elementalType: string;
     count: number;
-    requiredBlockIndex: number | null;
-    nonFungibleId: string | null;
 }
 
 interface AvatarPageProps {
@@ -67,8 +62,10 @@ const AvatarPage: NextPage<AvatarPageProps> = ({ avatar }) => {
     }
 
     const aggregatedItems = new Map<number, number>();
-    for (const { itemSheetId, count } of avatar.inventory.items) {
-        aggregatedItems.set(itemSheetId, (aggregatedItems.get(itemSheetId) || 0) + count);
+    if (avatar.inventory) {
+        for (const { itemSheetId, count } of avatar.inventory.items) {
+            aggregatedItems.set(itemSheetId, (aggregatedItems.get(itemSheetId) || 0) + count);
+        }
     }
 
     return (
@@ -126,9 +123,13 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
     }
 
     const planetName = getPlanetName(network);
-    const avatarJsonObj = (await getGraphQLSDK(network).GetAvatar({
+    const avatarResult = (await getMimirGraphQLSDK(network).GetAvatar({
         avatarAddress: address,
-    })).avatar;
+    }));
+    const avatarJsonObj = {
+        ...avatarResult.avatar,
+        actionPoint: avatarResult.actionPoint,
+    };
 
     if (!avatarJsonObj) {
         return {
@@ -138,8 +139,6 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
         }
     }
 
-    const inventoryJsonObj = avatarJsonObj.inventory;
-    const inventoryObj = parseToInventory(inventoryJsonObj);
     const agentBalanceJsonObjs = await getBalances(
         planetName,
         AGENT_CURRENCY_TICKERS,
@@ -148,35 +147,6 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
         planetName,
         AVATAR_CURRENCY_TICKERS,
         address);
-
-    function parseToInventory(inventoryJsonObj: any | null): Inventory {
-        if (inventoryJsonObj === null) {
-            return {
-                items: [],
-            };
-        }
-
-        const consumables = inventoryJsonObj.consumables?.map(parseToItem) ?? [];
-        const costumes = inventoryJsonObj.costumes?.map(parseToItem) ?? [];
-        const equipments = inventoryJsonObj.equipments?.map(parseToItem) ?? [];
-        const materials = inventoryJsonObj.materials?.map(parseToItem) ?? [];
-        return {
-            items: consumables.concat(costumes).concat(equipments).concat(materials),
-        };
-    }
-
-    function parseToItem(itemJsonObj: any): Item {
-        return {
-            itemSheetId: itemJsonObj.itemSheetId,
-            grade: itemJsonObj.grade,
-            itemType: itemJsonObj.itemType,
-            itemSubType: itemJsonObj.itemSubType,
-            elementalType: itemJsonObj.elementalType,
-            count: itemJsonObj.count,
-            requiredBlockIndex: itemJsonObj.requiredBlockIndex,
-            nonFungibleId: itemJsonObj.nonFungibleId,
-        };
-    }
 
     async function getBalances(
         network: Network,
@@ -203,6 +173,14 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
             };
         });
     }
+
+    const headless = getHeadlessGraphQLSDK(network);
+    const itemsJsonObj = (await headless.GetInventory({
+        address: avatarJsonObj.address
+    })).stateQuery.avatar?.inventory.items as Item[];
+    const inventoryObj = itemsJsonObj
+        ? { items: itemsJsonObj }
+        : null;
 
     return {
         props: {

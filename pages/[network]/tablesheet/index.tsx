@@ -1,13 +1,13 @@
 import type { NextPage, GetServerSideProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { getGraphQLSDK } from "../../../utils/mimirGraphQLClient";
+import { getMimirGraphQLSDK } from "../../../utils/mimirGraphQLClient";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const network = context.query.network as string;
 
   try {
-    const sheetNames = (await getGraphQLSDK(network).GetSheetNames()).sheetNames;
+    const sheetNames = (await getMimirGraphQLSDK(network).GetSheetNames()).sheetNames;
     return { props: { sheetNames, } };
   } catch (error) {
     console.error("Error fetching sheet names:", error);

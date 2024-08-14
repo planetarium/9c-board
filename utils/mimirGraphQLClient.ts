@@ -16,7 +16,7 @@ function getUrl(network: Network) {
     if (pair.indexOf("=") === -1) {
       throw new Error(
         "MIMIR_GRAPHQL_URL_MAP is not well-formed." +
-          " It should be a comma-separated list of key-value pairs."
+        " It should be a comma-separated list of key-value pairs."
       );
     }
 
@@ -31,11 +31,11 @@ function getUrl(network: Network) {
   throw new Error("There is no such network: " + network);
 }
 
-export function getClient(network: Network) {
+export function getMimirGraphQLClient(network: Network) {
   const url = getUrl(network);
   return new GraphQLClient(url, { errorPolicy: "ignore" });
 }
 
-export function getGraphQLSDK(network: Network) {
-  return getSdk(getClient(network));
+export function getMimirGraphQLSDK(network: Network) {
+  return getSdk(getMimirGraphQLClient(network));
 }
