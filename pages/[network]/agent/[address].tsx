@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next"
-import { getMimirGraphQLSDK } from "../../../utils/mimirGraphQLClient";
+import { getHeadlessGraphQLSDK } from "../../../utils/headlessGraphQLClient";
 
 interface Agent {
     avatars: Avatar[];
@@ -73,8 +73,8 @@ export const getServerSideProps: GetServerSideProps<AgentPageProps> = async (con
         throw new Error("Address parameter is not a string.");
     }
 
-    const mimir = getMimirGraphQLSDK(network);
-    const agentJsonObj = (await mimir.GetAgent({ agentAddress: address, })).agent;
+    const mimir = getHeadlessGraphQLSDK(network);
+    const agentJsonObj = (await mimir.Agent({ address: address, })).stateQuery.agent;
     if (agentJsonObj === null || agentJsonObj === undefined) {
         return {
             props: {
@@ -83,27 +83,10 @@ export const getServerSideProps: GetServerSideProps<AgentPageProps> = async (con
         }
     }
 
-    const avatars = await Promise.all(agentJsonObj.avatarAddresses
-        .map(async (avatarAddress) => {
-            const avatarResult = (await mimir.GetAvatar({ avatarAddress: avatarAddress }));
-            if (avatarResult === null || avatarResult.avatar === undefined) {
-                return {
-                    address: avatarAddress,
-                    name: "?",
-                    level: 0,
-                    actionPoint: 0,
-                };
-            }
-            return {
-                ...avatarResult.avatar,
-                actionPoint: avatarResult.actionPoint,
-            }
-        }));
-
     return {
         props: {
             agent: {
-                avatars: avatars as Avatar[],
+                avatars: agentJsonObj.avatarStates as Avatar[],
             },
         }
     }
