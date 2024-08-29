@@ -1,5 +1,4 @@
 import type { NextPage, GetServerSideProps } from "next";
-import { getMimirGraphQLSDK } from "../../../utils/mimirGraphQLClient";
 import { getHeadlessGraphQLSDK } from "../../../utils/headlessGraphQLClient";
 import { CurrencyInput } from "../../../generated/headless/graphql-request";
 
@@ -129,15 +128,10 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
         throw new Error("Address parameter is not a string.");
     }
 
-    // get avatar
-    const avatarResult = (await getMimirGraphQLSDK(network).GetAvatar({
-        avatarAddress: address,
-    }));
-    const avatarJsonObj = {
-        ...avatarResult.avatar,
-        actionPoint: avatarResult.actionPoint,
-    };
+    const headless = getHeadlessGraphQLSDK(network);
 
+    // get avatar
+    const avatarJsonObj = (await headless.Avatar({ address: address })).stateQuery.avatar;
     if (!avatarJsonObj) {
         return {
             props: {
@@ -148,14 +142,13 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
     // ~get avatar
 
     // get FAVs
-    const headless = getHeadlessGraphQLSDK(network);
     const agentFavs = await getBalances(AGENT_CURRENCIES, avatarJsonObj.agentAddress);
     const avatarFavs = await getBalances(AVATAR_CURRENCIES, address);
     // ~get FAVs
 
     // get inventory
     const itemsJsonObj = (await headless.GetInventory({
-        address: avatarJsonObj.address
+        address: address
     })).stateQuery.avatar?.inventory.items as Item[];
     const inventoryObj = itemsJsonObj
         ? { items: itemsJsonObj }
@@ -165,7 +158,7 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
     return {
         props: {
             avatar: {
-                address: avatarJsonObj.address,
+                address: address,
                 name: avatarJsonObj.name!,
                 actionPoint: avatarJsonObj.actionPoint!,
                 level: avatarJsonObj.level!,
