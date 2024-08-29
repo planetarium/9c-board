@@ -74,7 +74,7 @@ export const getServerSideProps: GetServerSideProps<AgentPageProps> = async (con
     }
 
     const mimir = getHeadlessGraphQLSDK(network);
-    const agentJsonObj = (await mimir.Agent({ address: address, })).stateQuery.agent;
+    const agentJsonObj = (await mimir.Agent({ address: address })).stateQuery.agent;
     if (agentJsonObj === null || agentJsonObj === undefined) {
         return {
             props: {
