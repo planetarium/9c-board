@@ -1,29 +1,36 @@
 import type { NextPage, GetServerSideProps } from "next";
-import { getBalance } from "../../../utils/apiClient";
 import { getMimirGraphQLSDK } from "../../../utils/mimirGraphQLClient";
-import { getPlanetName, } from "../../../utils/network";
-import { Network } from "../../../constants/network";
 import { getHeadlessGraphQLSDK } from "../../../utils/headlessGraphQLClient";
+import { CurrencyInput } from "../../../generated/headless/graphql-request";
 
-const AGENT_CURRENCY_TICKERS = [
-    "CRYSTAL",
-] as const;
-const AVATAR_CURRENCY_TICKERS = [
-    "RUNESTONE_FENRIR1",
-    "RUNESTONE_FENRIR2",
-    "RUNESTONE_FENRIR3",
-    "RUNESTONE_SAEHRIMNIR1",
-    "RUNESTONE_SAEHRIMNIR2",
-    "RUNESTONE_SAEHRIMNIR3",
-    "RUNESTONE_VAMPIRIC",
-    "RUNESTONE_STUN",
-    "RUNE_GOLDENLEAF",
-    "RUNE_ADVENTURER",
-    "SOULSTONE_1001",
-    "SOULSTONE_1002",
-    "SOULSTONE_1003",
-    "SOULSTONE_1004",
-] as const;
+const AGENT_CURRENCIES: CurrencyInput[] = [
+    {
+        ticker: "CRYSTAL",
+        decimalPlaces: 18,
+        minters: null,
+    },
+];
+const AVATAR_CURRENCIES: CurrencyInput[] =
+    [
+        "RUNESTONE_FENRIR1",
+        "RUNESTONE_FENRIR2",
+        "RUNESTONE_FENRIR3",
+        "RUNESTONE_SAEHRIMNIR1",
+        "RUNESTONE_SAEHRIMNIR2",
+        "RUNESTONE_SAEHRIMNIR3",
+        "RUNESTONE_VAMPIRIC",
+        "RUNESTONE_STUN",
+        "RUNE_GOLDENLEAF",
+        "RUNE_ADVENTURER",
+        "SOULSTONE_1001",
+        "SOULSTONE_1002",
+        "SOULSTONE_1003",
+        "SOULSTONE_1004",
+    ].map(ticker => ({
+        ticker: ticker,
+        decimalPlaces: 0,
+        minters: null,
+    }));
 
 interface FAV {
     ticker: string;
@@ -122,7 +129,7 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
         throw new Error("Address parameter is not a string.");
     }
 
-    const planetName = getPlanetName(network);
+    // get avatar
     const avatarResult = (await getMimirGraphQLSDK(network).GetAvatar({
         avatarAddress: address,
     }));
@@ -138,49 +145,22 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
             }
         }
     }
+    // ~get avatar
 
-    const agentBalanceJsonObjs = await getBalances(
-        planetName,
-        AGENT_CURRENCY_TICKERS,
-        avatarJsonObj.agentAddress);
-    const avatarBalanceJsonObjs = await getBalances(
-        planetName,
-        AVATAR_CURRENCY_TICKERS,
-        address);
-
-    async function getBalances(
-        network: Network,
-        tickers: readonly string[],
-        address: any | null
-    ): Promise<FAV[]> {
-        if (address === null) {
-            return [];
-        }
-
-        const balanceJsonObjects = await Promise.all(
-            tickers.map(
-                ticker => getBalance(
-                    network,
-                    address,
-                    ticker
-                )
-            )
-        );
-        return balanceJsonObjects.map((resp, index) => {
-            return {
-                ticker: tickers[index],
-                amount: resp === null ? 0 : parseFloat(resp.quantity),
-            };
-        });
-    }
-
+    // get FAVs
     const headless = getHeadlessGraphQLSDK(network);
+    const agentFavs = await getBalances(AGENT_CURRENCIES, avatarJsonObj.agentAddress);
+    const avatarFavs = await getBalances(AVATAR_CURRENCIES, address);
+    // ~get FAVs
+
+    // get inventory
     const itemsJsonObj = (await headless.GetInventory({
         address: avatarJsonObj.address
     })).stateQuery.avatar?.inventory.items as Item[];
     const inventoryObj = itemsJsonObj
         ? { items: itemsJsonObj }
         : null;
+    // ~get inventory
 
     return {
         props: {
@@ -189,11 +169,30 @@ export const getServerSideProps: GetServerSideProps<AvatarPageProps> = async (
                 name: avatarJsonObj.name!,
                 actionPoint: avatarJsonObj.actionPoint!,
                 level: avatarJsonObj.level!,
-                favs: agentBalanceJsonObjs.concat(avatarBalanceJsonObjs),
+                favs: agentFavs.concat(avatarFavs),
                 inventory: inventoryObj,
             },
         },
     };
+
+    async function getBalances(
+        currencies: readonly CurrencyInput[],
+        address: any | null
+    ): Promise<FAV[]> {
+        if (address === null) {
+            return [];
+        }
+
+        const avatarBalanceJsonObjs = await Promise.all(currencies.map(
+            (currency) => headless.GetBalance({
+                currency: currency,
+                address: address,
+            })));
+        return avatarBalanceJsonObjs.map((balanceJsonObj, index) => ({
+            ticker: currencies[index].ticker,
+            amount: parseFloat(balanceJsonObj.stateQuery.balance.quantity),
+        }));
+    }
 };
 
 export default AvatarPage;
