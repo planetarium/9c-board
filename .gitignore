@@ -39,3 +39,6 @@ generated
 
 # secret envionment variables
 .env
+
+# Yarn cache optimization file
+.yarn/install-state.gz
