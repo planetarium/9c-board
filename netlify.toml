@@ -1,5 +1,0 @@
-[build]
-  command = "yarn codegen && yarn build"
-
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
