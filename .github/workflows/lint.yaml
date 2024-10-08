@@ -1,0 +1,15 @@
+name: typos
+
+on: [pull_request]
+
+jobs:
+  check-typo:
+    name: Spell Check with Typos
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Check for Typos
+        uses: crate-ci/typos@v1.15.5
