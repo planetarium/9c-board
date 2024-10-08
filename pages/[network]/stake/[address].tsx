@@ -63,7 +63,7 @@ const StakePage: NextPage<StakePageProps> = ({ stakeState, blockIndex }) => {
             <div>
                 <p>Version: {stakeState.version}</p>
                 <p>Deposit: {stakeState.deposit}</p>
-                <p>StartedBlcokIndex: {stakeState.startedBlockIndex}</p>
+                <p>StartedBlockIndex: {stakeState.startedBlockIndex}</p>
                 <p>ReceivedBlockIndex: {stakeState.receivedBlockIndex}</p>
                 <div>
                     <h3>Contract</h3>
