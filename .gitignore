@@ -41,4 +41,5 @@ generated
 .env
 
 # Yarn cache optimization file
+.yarn/cache
 .yarn/install-state.gz
