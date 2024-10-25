@@ -8,7 +8,6 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json yarn.lock .yarnrc.yml ./
-COPY .yarn/install-state.gz ./.yarn/install-state.gz
 
 RUN corepack enable && yarn --version
 RUN yarn --immutable
