@@ -3,6 +3,7 @@ import { getHeadlessGraphQLSDK } from "../../../utils/headlessGraphQLClient";
 
 interface Agent {
     avatars: Avatar[];
+    address: string;
 }
 
 interface Avatar {
@@ -13,6 +14,7 @@ interface Avatar {
 }
 
 interface AgentPageProps {
+    network: string;
     agent: Agent | null
 }
 
@@ -41,7 +43,7 @@ function Avatar(avatar: Avatar) {
     );
 }
 
-const AgentPage: NextPage<AgentPageProps> = ({ agent }) => {
+const AgentPage: NextPage<AgentPageProps> = ({ agent, network }) => {
     if (agent === null) {
         return (
             <h1>There is no such agent.</h1>
@@ -58,6 +60,7 @@ const AgentPage: NextPage<AgentPageProps> = ({ agent }) => {
     return (
         <div>
             {agent.avatars.map(avatar => <Avatar key={avatar.address} {...avatar} />)}
+            <a href = {`/${network}/stake/${agent.address}`} ><button style={style}>Go to Stake</button></a>
         </div>
     )
 }
@@ -79,6 +82,7 @@ export const getServerSideProps: GetServerSideProps<AgentPageProps> = async (con
         return {
             props: {
                 agent: null,
+                network: network,
             }
         }
     }
@@ -87,7 +91,9 @@ export const getServerSideProps: GetServerSideProps<AgentPageProps> = async (con
         props: {
             agent: {
                 avatars: agentJsonObj.avatarStates as Avatar[],
+                address: address,
             },
+            network: network,
         }
     }
 }
