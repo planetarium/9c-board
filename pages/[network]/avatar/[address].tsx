@@ -1,6 +1,8 @@
 import type { NextPage, GetServerSideProps } from "next";
 import { getHeadlessGraphQLSDK } from "../../../utils/headlessGraphQLClient";
 import { CurrencyInput } from "../../../generated/headless/graphql-request";
+import { FungibleAsset } from "../../../components/FungibleAsset";
+import { Item } from "../../../components/Item";
 
 const AGENT_CURRENCIES: CurrencyInput[] = [
     {
@@ -83,32 +85,14 @@ const AvatarPage: NextPage<AvatarPageProps> = ({ avatar }) => {
             <div className="grid grid-cols-6 content-center">
                 {avatar.favs
                     .filter((x) => x.amount > 0)
-                    .map(({ ticker, amount }) => (
-                        <div className="" key={ticker}>
-                            <img
-                                className="inline m-1 w-10 h-10"
-                                title={String(ticker)}
-                                src={`https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/FungibleAssetValue/${ticker}.png`}
-                            />
-                            <span className="font-bold">{amount}</span>
-                        </div>
+                    .map(({ ticker, amount }, index) => (
+                        <FungibleAsset key={index} ticker={ticker} amount={amount} />
                     ))}
             </div>
             <h1 className="text-3xl font-extrabold mt-10 mb-5">Inventory</h1>
             <div className="flex flex-row flex-wrap space-y-3">
                 {Array.from(aggregatedItems.entries()).map(([id, count]) => (
-                    <div
-                        className="inline-flex w-28 h-20 border-solid border-2 border-gray-600 content-center"
-                        key={id}
-                    >
-                        {/* FIXME: MAKE THIS URL CONFIGURABLE BY USER */}
-                        <img
-                            className="w-16 h-16"
-                            title={String(id)}
-                            src={`https://raw.githubusercontent.com/planetarium/NineChronicles/development/nekoyume/Assets/Resources/UI/Icons/Item/${id}.png`}
-                        />{" "}
-                        <span className="font-bold">{count}</span>
-                    </div>
+                    <Item key={id} id={id} count={count} />
                 ))}
             </div>
         </>
