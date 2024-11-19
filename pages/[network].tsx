@@ -1,6 +1,5 @@
 import type { NextPage, GetServerSideProps } from "next";
-import { getHeadlessGraphQLSDK } from "../../../utils/headlessGraphQLClient";
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 interface NetworkPageProps {
     network: string;
