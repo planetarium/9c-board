@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import type { NextPage } from 'next';
-import Button from '../components/Button';
+import Button from '@/components/Button';
 
 const networks = [
   {

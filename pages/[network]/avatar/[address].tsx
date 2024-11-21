@@ -1,8 +1,8 @@
 import type { NextPage, GetServerSideProps } from "next";
 import { getHeadlessGraphQLSDK } from "../../../utils/headlessGraphQLClient";
 import { CurrencyInput } from "../../../generated/headless/graphql-request";
-import { FungibleAsset } from "../../../components/FungibleAsset";
-import { Item } from "../../../components/Item";
+import { FungibleAsset } from "@/components/FungibleAsset";
+import { Item } from "@/components/Item";
 
 const AGENT_CURRENCIES: CurrencyInput[] = [
     {
