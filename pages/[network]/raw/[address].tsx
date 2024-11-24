@@ -1,6 +1,6 @@
 import type { NextPage, GetServerSideProps } from "next"
 import { getHeadlessGraphQLSDK } from "../../../utils/headlessGraphQLClient";
-import { decode } from "bencodex";
+import { decode } from "@planetarium/bencodex";
 import React from "react";
 import { JSONTree } from "react-json-tree";
 

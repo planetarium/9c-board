@@ -1,6 +1,6 @@
 import type { NextPage, GetServerSideProps } from "next"
 import { getHeadlessGraphQLSDK } from "../../../utils/headlessGraphQLClient";
-import { BencodexList, decode } from "bencodex";
+import { BencodexDictionary, Value as BencodexValue, decode } from "@planetarium/bencodex";
 import React from "react";
 import * as crypto from "node:crypto";
 
@@ -91,7 +91,7 @@ function deserializeStakeState(state: HexString | null): Omit<StakeStateV1, "dep
     }
 
     const decoded = decode(Buffer.from(state, "hex"));
-    if (decoded instanceof Map) {
+    if (decoded instanceof BencodexDictionary) {
         if (!decoded.has("cbi") || !decoded.has("rbi2") || !decoded.has("sbi")) {
             throw new TypeError("Invalid StakeStateV1");
         }
@@ -133,7 +133,7 @@ function deserializeStakeState(state: HexString | null): Omit<StakeStateV1, "dep
     return null;
 }
 
-function deserializeStakeStateContract(state: BencodexList): Contract {
+function deserializeStakeStateContract(state: readonly BencodexValue[]): Contract {
     if (state.length !== 6 || state[0] !== "stake_contract" || state[1] !== BigInt(1) || typeof state[2] !== "string" || typeof state[3] !== "string" || typeof state[4] !== "bigint" || typeof state[5] !== "bigint") {
         throw new TypeError("Invalid StakeState Contract.")
     }

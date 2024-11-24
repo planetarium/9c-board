@@ -1,6 +1,7 @@
 import type { NextPage, GetServerSideProps } from "next"
 import { getHeadlessGraphQLSDK } from "../../../utils/headlessGraphQLClient";
 import { Sdk } from "../../../generated/headless/graphql-request";
+import { decode } from "@planetarium/bencodex";
 
 interface TableSheetPageProps {
     tableSheet: string | null,
@@ -87,7 +88,7 @@ export const getServerSideProps: GetServerSideProps<TableSheetPageProps> = async
 
     try {
         const state = Buffer.from((await sdk.GetState({ address, hash: blockHash })).state, "hex");
-        const tableSheet = require('bencodex').decode(state);
+        const tableSheet = decode(state);
 
         if (typeof tableSheet !== "string") {
             throw new Error("Unexpected table sheet type");

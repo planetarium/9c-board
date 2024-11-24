@@ -10,7 +10,7 @@
     "codegen": "graphql-codegen --config ./graphql/mimir/codegen.yml && graphql-codegen --config ./graphql/headless/codegen.yml"
   },
   "dependencies": {
-    "bencodex": "^0.1.2",
+    "@planetarium/bencodex": "^0.2.2",
     "graphql": "^16.8.1",
     "graphql-request": "^6.0.0",
     "graphql-tag": "^2.12.6",
@@ -24,7 +24,7 @@
     "@graphql-codegen/typescript": "^4.0.0",
     "@graphql-codegen/typescript-graphql-request": "^6.2.0",
     "@graphql-codegen/typescript-operations": "^4.2.0",
-    "@types/node": "20",
+    "@types/node": "22",
     "@types/react": "18.0.14",
     "@types/react-dom": "18.0.5",
     "autoprefixer": "^10.4.7",
