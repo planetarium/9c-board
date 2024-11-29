@@ -4,7 +4,7 @@ A web application to provide useful tools. You can access it at https://9c-board
 
 ## Development
 
-### Configure Environment
+### (Optional) Configure Environment
 
 - Create a `.env` file in the project's root directory.
 
