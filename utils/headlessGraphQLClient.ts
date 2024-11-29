@@ -11,12 +11,11 @@ function parseNetworkConfMap(confMapString: string): Map<string, ReturnType<type
     return map;
 }
 
-export function getHeadlessGraphQLSDK(network: string) {
-    if (process.env.NETWORK_CONF_MAP === undefined) {
-        throw new Error("All required environment variables are not set.");
-    }
+// This variable should have only mainnet-level networks.
+const DEFAULT_NETWORK_CONF_ENV = "odin=https://9c-main-full-state.nine-chronicles.com/graphql,heimdall=https://heimdall-full-state.nine-chronicles.com/graphql";
 
-    const networkToSdkMap = parseNetworkConfMap(process.env.NETWORK_CONF_MAP);
+export function getHeadlessGraphQLSDK(network: string) {
+    const networkToSdkMap = parseNetworkConfMap(process.env.NETWORK_CONF_MAP || DEFAULT_NETWORK_CONF_ENV);
     const sdk = networkToSdkMap.get(network);
     if (sdk === undefined) {
         throw new TypeError("There is no such network: " + network);

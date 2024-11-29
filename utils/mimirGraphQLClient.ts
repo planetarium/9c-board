@@ -2,15 +2,11 @@ import { GraphQLClient } from "graphql-request";
 import { Network } from "../constants/network";
 import { getSdk } from "../generated/mimir/graphql-request";
 
-function getUrl(network: Network) {
-  const map = process.env.MIMIR_GRAPHQL_URL_MAP;
-  if (map === undefined) {
-    throw new Error("MIMIR_GRAPHQL_URL_MAP is not set.");
-  }
+// This variable should have only mainnet-level networks.
+const DEFAULT_MIMIR_GRAPHQL_URL_MAP_ENV = "odin=https://mimir.nine-chronicles.dev/odin/graphql,heimdall=https://mimir.nine-chronicles.com/heimdall/graphql";
 
-  if (map === "") {
-    throw new Error("MIMIR_GRAPHQL_URL_MAP is empty.");
-  }
+function getUrl(network: Network) {
+  const map = process.env.MIMIR_GRAPHQL_URL_MAP || DEFAULT_MIMIR_GRAPHQL_URL_MAP_ENV;
 
   const pairs = map.split(",").map((pair) => {
     if (pair.indexOf("=") === -1) {
