@@ -1,27 +1,17 @@
 import { useRouter } from 'next/router';
-import type { NextPage } from 'next';
+import type { GetServerSideProps, NextPage } from 'next';
 import Button from '@/components/Button';
+import { getNetworkConfMapFromEnv } from '../utils/headlessGraphQLClient';
 
-const networks = [
-  {
-    id: 0,
-    name: 'odin',
-  },
-  {
-    id: 1,
-    name: 'odin-internal',
-  },
-  {
-    id: 2,
-    name: 'heimdall',
-  },
-  {
-    id: 3,
-    name: 'heimdall-internal',
-  },
-];
+interface NetworkDefinition {
+  name: string;
+}
 
-const Home: NextPage = () => {
+interface HomePageProps {
+  networks: NetworkDefinition[];
+}
+
+const Home: NextPage<HomePageProps> = ({ networks }) => {
   const router = useRouter();
 
   const handleClick = (networkName: string) => {
@@ -34,7 +24,7 @@ const Home: NextPage = () => {
         <h1 className='font-extrabold text-3xl py-5'>Available networks</h1>
         <ul className='text-center'>
           {networks.map((network) => (
-            <li key={network.id}>
+            <li key={network.name}>
               <Button handleClick={() => handleClick(network.name)}>
                 {network.name}
               </Button>
@@ -45,5 +35,18 @@ const Home: NextPage = () => {
     </div>
   );
 };
+
+export const getServerSideProps: GetServerSideProps<HomePageProps> = async (context) => {
+  const networks = Array.from(getNetworkConfMapFromEnv().keys()).toSorted().map(name => {
+    return {
+      name,
+    }
+  });
+  return {
+    props: {
+      networks,
+    }
+  }
+}
 
 export default Home;
